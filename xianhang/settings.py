@@ -84,9 +84,9 @@ WSGI_APPLICATION = 'xianhang.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': env('MYSQL_DATABASE_NAME'),
-        'USER': env('MYSQL_USER'),
-        'PASSWORD': env('MYSQL_PASSWORD'),
+        'NAME': 'xianhang',
+        'USER': 'xhadmin',
+        'PASSWORD': 'XianHang_123',
         'HOST': 'localhost',
         'PORT': 3306,
     }
