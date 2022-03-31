@@ -3,8 +3,8 @@
 ```mysql
 CREATE USER 'xhadmin'@'localhost' IDENTIFIED BY 'XianHang_123';
 
-CREATE DATABASE xhadmin;
+CREATE DATABASE xianhang;
 
-GRANT ALL PRIVILEGES ON xhadmin.* TO 'xhadmin'@'localhost';
+GRANT ALL PRIVILEGES ON xianhang.* TO 'xhadmin'@'localhost';
 FLUSH PRIVILEGES;
 ```
