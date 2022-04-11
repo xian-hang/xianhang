@@ -1,9 +1,4 @@
-from curses.ascii import HT
 import json
-import re
-from smtplib import SMTPAuthenticationError
-from wsgiref import headers
-from django.shortcuts import render
 from django.core.mail import send_mail
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
