@@ -7,10 +7,15 @@ from django.contrib.auth import login, logout
 from xianhang.settings import EMAIL_HOST_USER
 from .models import XHUser
 from xianhang.deco import check_logged_in
-from xianhang.functool import checkParameter
+from xianhang.functool import checkParameter, isString
 
 
 # Create your views here.
+def checkReq(request):
+    print(request.META)
+    return HttpResponse()
+
+
 def sendEmailTest(request):
     # data = json.loads(request.body)
 
@@ -121,5 +126,34 @@ def user(request, id):
 
     if request.method == 'GET':
         return JsonResponse(user.body())
-    else :
-        return JsonResponse({'detail' : 'method coming soon'})
+
+    elif request.method == 'POST':
+        if not request.user.is_authenticated or not request.user.username == user.username:
+            return HttpResponse(status = 403)
+
+        data = json.loads(request.body)
+        changed = []
+        
+        if "password" in data:
+            password = data['password']
+            if isString(password) and len(password) >= 8:
+                user.set_password(password)
+                changed += ['password']
+            else:
+                return JsonResponse({'detail' : 'invalid password'}, status=400)
+        
+        user.save()
+        return JsonResponse({'changed' : changed})
+
+    elif request.method == 'DELETE':
+        if request.user.is_authenticated and request.user.username == user.username:
+            reqUser = XHUser.objects.get(username = request.user)
+            if not reqUser.role == XHUser.RoleChoices.ADMIN:
+               return HttpResponse(status = 403)
+
+        user.delete()
+        return HttpResponse()
+
+        
+
+

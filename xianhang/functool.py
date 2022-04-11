@@ -13,3 +13,6 @@ def checkParameter(list, request):
             return False
 
     return True
+
+def isString(string):
+    return isinstance(string, str)
