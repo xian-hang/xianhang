@@ -1,3 +1,4 @@
+from curses.ascii import HT
 import json
 import re
 from smtplib import SMTPAuthenticationError
@@ -6,6 +7,7 @@ from django.shortcuts import render
 from django.core.mail import send_mail
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
+from django.contrib.auth import login, logout
 
 from xianhang.settings import EMAIL_HOST_USER
 from .models import XHUser
@@ -32,7 +34,7 @@ def sendEmailTest(request):
 
 
 @require_http_methods(["POST"])
-def login(request):
+def userLogin(request):
     try:
         data = json.loads(request.body)
         studentId = data['studentId']
@@ -47,14 +49,14 @@ def login(request):
 
     if user.role == XHUser.RoleChoices.ADMIN:
         if user.check_password(data['password']):
-            login(user)
+            login(request,user)
             return JsonResponse({
                 'detail': 'logged in succesfully',
                 'role': 'admin'
             })
-    elif user.status == XHUser.StatChoices.VER | user.status == XHUser.StatChoices.REST:
+    elif user.status == XHUser.StatChoices.VER or user.status == XHUser.StatChoices.REST:
         if user.check_password(password):
-            login(user)
+            login(request,user)
             return JsonResponse({
                 'detail': 'logged in succesfully',
                 'role': 'user'
@@ -65,8 +67,8 @@ def login(request):
 
 @require_http_methods(["POST"])
 @check_logged_in
-def logout(request):
-    logout()
+def userLogout(request):
+    logout(request)
     return JsonResponse({'detail': 'logged out successfully'})
 
 
@@ -90,11 +92,13 @@ def createUser(request):
         return HttpResponse(status=403)
 
     user = XHUser.objects.create(username=username,
-                                 password=password,
                                  studentId=studentId)
+    user.set_password(password)
+    user.save()
+
     send_mail(
-        'Verify your email address for Xian Hang',  # subject
-        'Thanks for joining us ! Click here for the verification of your email >> http://localhost:8000/user/%s/verify/' % user.id,  # message
+        '[Xian Hang] Verify your emil address',  # subject
+        'Hi, %s! \n\n Thanks for joining us ! Click here to confirm your email >> http://localhost:8000/user/%s/verify/' % (user.username, user.id),  # message
         EMAIL_HOST_USER,  # from email
         [studentId + '@buaa.edu.cn'],  # to email
     )
