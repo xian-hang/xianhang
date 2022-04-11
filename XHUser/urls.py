@@ -11,4 +11,5 @@ urlpatterns = [
     path('<int:id>/verify/', views.verifyEmail),
 
     path('<int:id>/', views.user),
+    path('<int:id>/edit/', views.editUser),
 ]

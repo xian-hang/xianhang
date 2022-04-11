@@ -3,9 +3,11 @@ from django.core.mail import send_mail
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth import login, logout
+from Product.views import product
 
 from xianhang.settings import EMAIL_HOST_USER
 from .models import XHUser
+from Product.models import Product
 from xianhang.deco import check_logged_in
 from xianhang.functool import checkParameter, isString
 
@@ -54,7 +56,7 @@ def userLogin(request):
                 'detail': 'logged in succesfully',
                 'role': 'admin'
             })
-    elif user.status == XHUser.StatChoices.VER or user.status == XHUser.StatChoices.REST:
+    elif user.status == XHUser.StatChoices.VER or user.status == XHUser.StatChoices.RESTRT:
         if user.check_password(password):
             login(request,user)
             return JsonResponse({
@@ -117,18 +119,25 @@ def verifyEmail(request, id):
         return HttpResponse(status=404)
 
 
-@require_http_methods(["GET","POST","DELETE"])
 def user(request, id):
     try:
         user = XHUser.objects.get(id=id)
     except XHUser.DoesNotExist:
         return HttpResponse(status=404)
 
-    if request.method == 'GET':
-        return JsonResponse(user.body())
+    return JsonResponse(user.body())
 
-    elif request.method == 'POST':
-        if not request.user.is_authenticated or not request.user.username == user.username:
+
+@require_http_methods(['POST','DELETE'])
+@check_logged_in
+def editUser(request):
+    try:
+        user = XHUser.objects.get(id=id)
+    except XHUser.DoesNotExist:
+        return HttpResponse(status=404)
+        
+    if request.method == 'POST':
+        if not request.user.username == user.username:
             return HttpResponse(status = 403)
 
         data = json.loads(request.body)
@@ -146,17 +155,18 @@ def user(request, id):
         return JsonResponse({'changed' : changed})
 
     elif request.method == 'DELETE':
-        if request.user.is_authenticated and request.user.username == user.username:
+        if not request.user.username == user.username:
             reqUser = XHUser.objects.get(username = request.user)
             if not reqUser.role == XHUser.RoleChoices.ADMIN:
-               return HttpResponse(status = 403)
+                return HttpResponse(status = 403)
 
         user.status = XHUser.StatChoices.DEAC
         user.save()
+
+        products = Product.objects.filter(user=user)
+        for p in products:
+            p.delete()
+
         return HttpResponse()
-
-
-
-        
 
 

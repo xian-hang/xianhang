@@ -11,7 +11,7 @@ class XHUser(User):
         UNVER = 0, "Unverified"
         VER = 1, "Verified"
         DEAC = 2, "Deactivated"
-        REST = 3, "Restricted"
+        RESTRT = 3, "Restricted"
             
 
 
