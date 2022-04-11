@@ -151,8 +151,11 @@ def user(request, id):
             if not reqUser.role == XHUser.RoleChoices.ADMIN:
                return HttpResponse(status = 403)
 
-        user.delete()
+        user.status = XHUser.StatChoices.DEAC
+        user.save()
         return HttpResponse()
+
+
 
         
 
