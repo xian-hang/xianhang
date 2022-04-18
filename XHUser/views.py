@@ -44,26 +44,25 @@ def userLogin(request):
     studentId = data['studentId']
     password = data['password']
 
-    user = XHUser.objects.filter(studentId=studentId)
-    if not user.exists():
+    try:
+        user = XHUser.objects.get(studentId=studentId)
+    except:
         return resError(401)
 
     if user.role == XHUser.RoleChoices.ADMIN:
         if user.check_password(data['password']):
             login(request,user)
-            token = Token.objects.get(user=user)
-            return resOk({
-                'message': 'logged in succesfully',
+            token, created = Token.objects.get_or_create(user=user)
+            return resReturn({
                 'role': 'admin',
                 'token': token.key
             })
     elif user.status in [XHUser.StatChoices.VER, XHUser.StatChoices.RESTRT]:
         if user.check_password(password):
             login(request,user)
-            token = Token.objects.get(user=user)
+            token, created = Token.objects.get_or_create(user=user)
             print(token)
-            return resOk({
-                'message': 'logged in succesfully',
+            return resReturn({
                 'role': 'user',
                 'token': token.key
             })
@@ -74,8 +73,10 @@ def userLogin(request):
 @require_http_methods(["POST"])
 @check_logged_in
 def userLogout(request):
+    user = getReqUser(request)
+    Token.objects.filter(user=user).delete()
     logout(request)
-    return resOk({'message': 'logged out successfully'})
+    return resOk()
 
 
 @require_http_methods(["POST"])
@@ -89,7 +90,7 @@ def createUser(request):
     password = data['password']
 
     if not usernameValidation(username) or not passwordValidation(password):
-        return resError(400)
+        return resError(400, "Invalid username or password.")
 
     if XHUser.objects.filter(studentId=studentId).exists() or XHUser.objects.filter(username=username).exists():
         return resError(403)
@@ -98,7 +99,7 @@ def createUser(request):
                                  studentId=studentId)
     user.set_password(password)
     user.save()
-    token = Token.objects.create(user=user)
+    # token = Token.objects.create(user=user)
 
     send_mail(
         '[Xian Hang] Verify your emil address',  # subject
@@ -132,7 +133,7 @@ def user(request, id):
 
 @require_http_methods(['POST','DELETE'])
 @check_logged_in
-def editUser(request):
+def editUser(request, id):
     try:
         user = XHUser.objects.get(id=id)
     except XHUser.DoesNotExist:
@@ -149,11 +150,13 @@ def editUser(request):
         
         if "username" in data:
             username = data['username']
-            if usernameValidation(username):
+            if not usernameValidation(username):
+                return resError(400, 'Invalid username')
+            elif XHUser.objects.filter(username = username).exists():
+                return resError(400, 'Username duplicated')
+            else:
                 user.username = username
                 updated = {**updated, 'username_updated': username}
-            else:
-                return resError(400, 'invalid username')
 
         if "introduction" in data:
             introduction = data['introduction']
@@ -208,6 +211,7 @@ def editPassword(request):
         return resError(400)
 
     user.set_password(newPassword)
+    login(request, user)
     return resOk()
     
 

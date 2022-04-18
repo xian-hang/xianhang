@@ -11,7 +11,7 @@ def check_logged_in(view):
         elif request.META.get('HTTP_AUTHORIZATION') is not None:
             auth = request.META.get('HTTP_AUTHORIZATION').split()
             print(auth)
-            if Token.objects.filter(key=auth[1]).exists:
+            if Token.objects.filter(key=auth[1]).exists():
                 return view(request, *args, **kwargs)
             else:
                 return HttpResponse(status=401)

@@ -34,8 +34,8 @@ class XHUser(User):
         return {
             'username': self.username,
             'studentId': self.studentId,
-            'role': XHUser.RoleChoices(self.role).label,
+            'role': {self.role : XHUser.RoleChoices(self.role).label},
             'soldItem': self.soldItem,
             'rating': self.rating,
-            'status': XHUser.StatChoices(self.status).label,
+            'status': {self.status : XHUser.StatChoices(self.status).label},
         }
