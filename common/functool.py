@@ -1,7 +1,15 @@
+from itertools import islice
 import json
+from logging import raiseExceptions
 from XHUser.models import XHUser
 from rest_framework.authtoken.models import Token
-from django.core.exceptions import BadRequest
+from django.core.exceptions import BadRequest, PermissionDenied, ObjectDoesNotExist
+
+
+from django.db.models.base import Model
+from typing import Type, TypeVar
+from common.restool import resError
+from django.http import Http404
 
 def checkParameter(list, request) -> bool:
     if not request.body:
@@ -17,15 +25,6 @@ def checkParameter(list, request) -> bool:
 
     return True
 
-def isString(keyword) -> bool:
-    return isinstance(keyword, str)
-
-def isInt(keyword) -> bool:
-    return isinstance(keyword, int)
-
-def isFloat(keyword) -> bool:
-    return isinstance(keyword, float) or isinstance(keyword, int)
-
 def getReqUser(request) -> XHUser:
     if request.user.is_authenticated:
         return XHUser.objects.get(id=request.user.id)
@@ -37,8 +36,35 @@ def getReqUser(request) -> XHUser:
     else:
         return None
 
-def usernameValidation(username) -> bool:
-    return isString(username) and len(username) >= 4
+def getActiveUser(*args, **kwargs) -> XHUser:
+    try:
+        user = XHUser.objects.get(*args, **kwargs)
+        if user.role == XHUser.RoleChoices.USER and user.status in [XHUser.StatChoices.VER, XHUser.StatChoices.RESTRT]:
+            return user
+    except:
+        pass
+    
+    return None
 
-def passwordValidation(password) -> bool:
-    return isString(password) and len(password) >= 8
+
+_T = TypeVar("_T", bound=Model)
+def getObjectOrResError(errCode = 0, returnNone = False, klass: Type[_T] = None, *args, **kwargs) -> _T : 
+    if klass is None:
+        raise Http404
+
+    key = dict(islice(kwargs.items(),0,1))
+    try:
+        obj = klass.objects.get(**key)
+    except Exception as e:
+        if errCode == 404:
+            raise Http404
+        elif errCode == 403:
+            raise PermissionDenied
+        elif errCode == 400:
+            raise BadRequest
+        elif returnNone:
+            return None
+        else:
+            raise e
+    
+    return obj

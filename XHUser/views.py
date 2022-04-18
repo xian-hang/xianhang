@@ -4,18 +4,20 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth import login, logout
 from Product.views import product
 from rest_framework.authtoken.models import Token
+from django.shortcuts import get_object_or_404
 
 from xianhang.settings import EMAIL_HOST_USER, BASE_URL
 from .models import XHUser
 from Product.models import Product
 from common.deco import check_logged_in
-from common.functool import checkParameter, getReqUser
+from common.functool import checkParameter, getActiveUser, getReqUser, getObjectOrResError
 from common.validation import isString, passwordValidation, usernameValidation 
 from common.restool import resError, resMissingPara, resOk, resReturn
 
 # Create your views here.
 def checkReq(request):
-    print(request.META)
+    print(getActiveUser(id=17))
+    # print(request.META)
     return resOk()
 
 
@@ -44,8 +46,11 @@ def userLogin(request):
     studentId = data['studentId']
     password = data['password']
 
+    if not isString(studentId) or not isString(password):
+        return resError(401)
+
     try:
-        user = XHUser.objects.get(studentId=studentId)
+        user = XHUser.objects.get_ob(studentId=studentId)
     except:
         return resError(401)
 
@@ -111,90 +116,79 @@ def createUser(request):
 
 
 def verifyEmail(request, id):
-    try:
-        user = XHUser.objects.get(id=id)
-        if user.status in [XHUser.StatChoices.UNVER]:
-            return resError(403)
-        user.status = XHUser.StatChoices.VER
-        user.save()
-        return resOk({'message': 'email verified'})
-    except:
-        return resError(404)
+    user = get_object_or_404(XHUser,id=id)
+    if user.status != XHUser.StatChoices.UNVER:
+        return resError(403)
+    user.status = XHUser.StatChoices.VER
+    user.save()
+    return resOk({'message': 'email verified'})
 
 
 def user(request, id):
-    try:
-        user = XHUser.objects.get(id=id)
-    except XHUser.DoesNotExist:
-        return resError(404)
-
+    user = get_object_or_404(XHUser,id=id)
     return resReturn(user.body())
 
 
-@require_http_methods(['POST','DELETE'])
+@require_http_methods(['POST'])
 @check_logged_in
 def editUser(request, id):
-    try:
-        user = XHUser.objects.get(id=id)
-    except XHUser.DoesNotExist:
-        return resError(404)
-
+    user = get_object_or_404(XHUser,id=id)
     reqUser = getReqUser(request)
         
-    if request.method == 'POST':
-        if not reqUser.username == user.username:
+    if not reqUser.username == user.username:
+        return resError(403)
+
+    data = json.loads(request.body)
+    updated = {}
+        
+    if "username" in data:
+        username = data['username']
+        if not usernameValidation(username):
+            return resError(400, 'Invalid username')
+        elif XHUser.objects.filter(username = username).exists():
+            return resError(400, 'Username duplicated')
+        else:
+            user.username = username
+            updated = {**updated, 'username_updated': username}
+
+    if "introduction" in data:
+        introduction = data['introduction']
+        if isString(introduction):
+            user.introduction = introduction
+            updated = {**updated, 'introduction_updated': introduction}
+        else:
+            return resError(400, 'invalid introduction')
+        
+    user.save()
+    return resReturn(updated)
+
+@require_http_methods(['DELETE'])
+@check_logged_in
+def deacUser(request):
+    user = get_object_or_404(XHUser,id=id)
+    reqUser = getReqUser(request)
+
+    if not reqUser.username == user.username:
+        if not reqUser.role == XHUser.RoleChoices.ADMIN:
             return resError(403)
 
-        data = json.loads(request.body)
-        updated = {}
-        
-        if "username" in data:
-            username = data['username']
-            if not usernameValidation(username):
-                return resError(400, 'Invalid username')
-            elif XHUser.objects.filter(username = username).exists():
-                return resError(400, 'Username duplicated')
-            else:
-                user.username = username
-                updated = {**updated, 'username_updated': username}
+    user.status = XHUser.StatChoices.DEAC
+    user.save()
 
-        if "introduction" in data:
-            introduction = data['introduction']
-            if isString(introduction):
-                user.introduction = introduction
-                updated = {**updated, 'introduction_updated': introduction}
-            else:
-                return resError(400, 'invalid introduction')
-        
-        user.save()
-        return resReturn(updated)
+    products = Product.objects.filter(user=user)
+    for p in products:
+        p.delete()
 
-    elif request.method == 'DELETE':
-        if not reqUser.username == user.username:
-            if not reqUser.role == XHUser.RoleChoices.ADMIN:
-                return resError(403)
-
-        user.status = XHUser.StatChoices.DEAC
-        user.save()
-
-        products = Product.objects.filter(user=user)
-        for p in products:
-            p.delete()
-
-        return resOk()
+    return resOk()
 
 
 @require_http_methods(['POST'])
 @check_logged_in
 def editPassword(request):
-    try:
-        user = XHUser.objects.get(id=id)
-    except XHUser.DoesNotExist:
-        return resError(404)
-
+    user = get_object_or_404(XHUser,id=id)
     reqUser = getReqUser(request)
         
-    if not reqUser.username == user.username:
+    if reqUser.id != user.id:
         return resError(403 , "User are not allowed to change other user's password.")
 
     if not checkParameter(['password','newPassword']):
@@ -204,7 +198,7 @@ def editPassword(request):
     password = data['password']
     newPassword = data['newPassword']
 
-    if not reqUser.check_password(password):
+    if not isString(password) or not reqUser.check_password(password):
         return resError(403)
 
     if not passwordValidation(newPassword):
