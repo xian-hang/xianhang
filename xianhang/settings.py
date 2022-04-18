@@ -30,8 +30,7 @@ SECRET_KEY = 'django-insecure-gu$3um!!l-1cw5nj2js4kj!6ha&hr^=0l4b!q9gb%w^pnqo#9v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.0.117']
-
+ALLOWED_HOSTS = ['192.168.0.117','localhost']
 
 # Application definition
 
@@ -44,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'rest_framework.authtoken',
     'XHUser',
     'Product',
 ]
@@ -77,6 +77,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'xianhang.wsgi.application'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES' : (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    
+}
 
 
 # Database
@@ -140,3 +147,5 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
+
+BASE_URL = 'http://localhost:8000/'

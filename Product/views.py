@@ -3,11 +3,12 @@ from django.shortcuts import render
 
 from XHUser.models import XHUser
 from .models import Product
-from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_http_methods
 
-from xianhang.deco import check_logged_in, user_logged_in
-from xianhang.functool import checkParameter, isFloat, isInt, isString
+from common.deco import check_logged_in, user_logged_in
+from common.functool import checkParameter
+from common.validation import isFloat, isInt, isString
+from common.restool import resOk, resError, resMissingPara, resReturn
 
 # Create your views here.
 
@@ -16,10 +17,10 @@ from xianhang.functool import checkParameter, isFloat, isInt, isString
 def createProduct(request):
     user = XHUser.objects.get(username=request.user.username)
     if user.status == XHUser.StatChoices.RESTRT:
-        return HttpResponse(status=403)
+        return resError(403)
 
     if not checkParameter(["name","description","price","stock"], request):
-        return HttpResponse(status=400)
+        return resError(400)
 
     data = json.loads(request.body)
     name = data['name']
@@ -28,18 +29,18 @@ def createProduct(request):
     stock = data['stock']
     if isString(name) and isString(description) and isFloat(price) and isInt(stock):
         product = Product.objects.create(name=name, description=description, price=price, stock=stock, user=user)
-        return JsonResponse(product.body())
+        return resReturn(product.body())
     else:
-        return HttpResponse(status=400)
+        return resError(400)
 
 
 def product(request,id):
     try:
         product = Product.objects.get(id=id)
     except Product.DoesNotExist:
-        return HttpResponse(status=404)
+        return resError(404)
 
-    return JsonResponse(product.body())
+    return resReturn(product.body())
 
 
 @require_http_methods(['POST','DELETE'])
@@ -48,10 +49,10 @@ def editProduct(request,id):
     try:
         product = Product.objects.get(id=id)
     except Product.DoesNotExist:
-        return HttpResponse(status=404)
+        return resError(404)
 
     if request.method == 'POST':
-        changed = {}
+        updated = {}
 
         if request.body:
             data = json.loads(request.body)
@@ -60,38 +61,38 @@ def editProduct(request,id):
                 name = data['name']
                 if isString(name):
                     product.name = name
-                    changed = {**changed, 'name' : name}
+                    updated = {**updated, 'name' : name}
                 else:
-                    return HttpResponse(status=400)
+                    return resError(400)
 
             if "description" in data:
                 description = data['description']
                 if isString(description):
                     product.description = description
-                    changed = {**changed, 'description' : description}
+                    updated = {**updated, 'description' : description}
                 else:
-                    return HttpResponse(status=400)
+                    return resError(400)
 
             if "price" in data:
                 price = data['price']
                 if isFloat(price):
                     product.price = price
-                    changed = {**changed, 'price' : price}
+                    updated = {**updated, 'price' : price}
                 else:
-                    return HttpResponse(status=400)
+                    return resError(400)
 
             if "stock" in data:
                 stock = data['stock']
                 if isInt(data['stock']):
                     product.stock = stock
-                    changed = {**changed, 'stock' : stock}
+                    updated = {**updated, 'stock' : stock}
                 else:
-                    return HttpResponse(status=400)
+                    return resError(400)
 
             product.save()
-            return JsonResponse(changed)
+            return resReturn(updated)
 
     elif request.method == 'DELETE':
         product.delete()
-        return HttpResponse()
+        return resOk()
 

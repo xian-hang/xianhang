@@ -12,4 +12,5 @@ urlpatterns = [
 
     path('<int:id>/', views.user),
     path('<int:id>/edit/', views.editUser),
+    path('<int:id>/edit/password/', views.editPassword),
 ]
