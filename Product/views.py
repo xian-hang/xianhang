@@ -17,7 +17,7 @@ from common.restool import resOk, resError, resMissingPara, resReturn
 def createProduct(request):
     user = XHUser.objects.get(username=request.user.username)
     if user.status == XHUser.StatChoices.RESTRT:
-        return resError(403)
+        return resError(403, "User is restricted.")
 
     if not checkParameter(["name","description","price","stock"], request):
         return resError(400)
@@ -34,7 +34,7 @@ def createProduct(request):
         return resError(400)
 
 
-def product(request,id):
+def getProduct(request,id):
     product = get_object_or_404(Product, id=id)
     return resReturn(product.body())
 
@@ -101,3 +101,18 @@ def deleteProduct(request):
 
     product.delete()
     return resOk()
+
+
+@require_http_methods(['POST'])
+def searchProduct(request):
+    if not checkParameter(['keyword'], request):
+        return resMissingPara(['keyword'])
+
+    data = json.loads(request.body)
+    keyword = data['keyword']
+
+    if not isString(keyword):
+        return resError(400, "Invalid keyword.")
+
+    products = Product.objects.filter(name__contains=keyword)
+    return resReturn({"result" : [p.body() for p in products]})

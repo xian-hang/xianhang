@@ -113,7 +113,7 @@ def verifyEmail(request, id):
     return resOk({'message': 'email verified'})
 
 
-def user(request, id):
+def getUser(request, id):
     user = get_object_or_404(XHUser,id=id)
     return resReturn(user.body())
 
