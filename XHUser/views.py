@@ -222,3 +222,18 @@ def editPassword(request):
     return resOk()
     
 
+@require_http_methods(['POST'])
+def searchUser(request):
+    if not checkParameter(['keyword'], request):
+        return resMissingPara(['keyword'])
+
+    data = json.loads(request.body)
+    keyword = data['keyword']
+
+    if not isString(keyword):
+        return resError(400, "Invalid keyword.")
+
+    users = set(XHUser.objects.filter(username__contains=keyword))
+    users |= set(XHUser.objects.filter(studentId__contains=keyword))
+    
+    return resReturn({"result" : [u.body() for u in users]})
