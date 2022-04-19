@@ -1,7 +1,6 @@
 import json
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth import login, logout
-from Product.views import product
 from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
 
@@ -9,7 +8,7 @@ from xianhang.settings import EMAIL_HOST_USER
 from .models import XHUser
 from Product.models import Product
 from common.deco import admin_logged_in, check_logged_in
-from common.functool import checkParameter, getActiveUser, getReqUser, getObjectOrResError
+from common.functool import checkParameter, getActiveUser, getReqUser
 from common.validation import isInt, isString, passwordValidation, usernameValidation 
 from common.restool import resError, resMissingPara, resOk, resReturn
 from common.mail import mailtest, sendVerificationMail
@@ -127,6 +126,9 @@ def editUser(request, id):
         
     if not reqUser.username == user.username:
         return resError(403)
+
+    if not request.body:
+        return resOk()
 
     data = json.loads(request.body)
     updated = {}

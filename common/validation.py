@@ -4,6 +4,12 @@ def usernameValidation(username) -> bool:
 def passwordValidation(password) -> bool:
     return isString(password) and len(password) >= 8
 
+def stockValidation(stock) -> bool:
+    return isInt(stock) and stock >= 0
+
+def priceValidation(price) -> bool:
+    return isFloat(price) and price >= 0
+
 def isString(keyword) -> bool:
     return isinstance(keyword, str)
 
