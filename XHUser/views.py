@@ -1,18 +1,18 @@
 import json
-from django.core.mail import send_mail
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth import login, logout
 from Product.views import product
 from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
 
-from xianhang.settings import EMAIL_HOST_USER, BASE_URL
+from xianhang.settings import EMAIL_HOST_USER
 from .models import XHUser
 from Product.models import Product
-from common.deco import check_logged_in
+from common.deco import admin_logged_in, check_logged_in
 from common.functool import checkParameter, getActiveUser, getReqUser, getObjectOrResError
-from common.validation import isString, passwordValidation, usernameValidation 
+from common.validation import isInt, isString, passwordValidation, usernameValidation 
 from common.restool import resError, resMissingPara, resOk, resReturn
+from common.mail import mailtest, sendVerificationMail
 
 # Create your views here.
 def checkReq(request):
@@ -21,19 +21,10 @@ def checkReq(request):
     return resOk()
 
 
+
 def sendEmailTest(request):
     # data = json.loads(request.body)
-    try:
-        send_mail(
-            '[Testing] Verify your email address for Xian Hang',  # subject
-            'Thanks for joining us !',  # message
-            EMAIL_HOST_USER,  # from email
-            ['xianhang2022@gmail.com'],  # to email
-        )
-    except Exception as e:
-        print(e)
-        return resError(403, 'An error occured')
-
+    mailtest()
     return resOk()
 
 
@@ -50,7 +41,7 @@ def userLogin(request):
         return resError(401)
 
     try:
-        user = XHUser.objects.get_ob(studentId=studentId)
+        user = XHUser.objects.get(studentId=studentId)
     except:
         return resError(401)
 
@@ -94,11 +85,14 @@ def createUser(request):
     studentId = data['studentId']
     password = data['password']
 
-    if not usernameValidation(username) or not passwordValidation(password):
-        return resError(400, "Invalid username or password.")
+    if not usernameValidation(username) or not passwordValidation(password) or not isString(studentId):
+        return resError(400, "Invalid username, studentId or password.")
 
-    if XHUser.objects.filter(studentId=studentId).exists() or XHUser.objects.filter(username=username).exists():
-        return resError(403)
+    if XHUser.objects.filter(studentId=studentId).exists():
+        return resError(403, "Given student id exists.")
+    
+    if XHUser.objects.filter(username=username).exists():
+        return resError(403, "Given username exists.")
 
     user = XHUser.objects.create(username=username,
                                  studentId=studentId)
@@ -106,12 +100,8 @@ def createUser(request):
     user.save()
     # token = Token.objects.create(user=user)
 
-    send_mail(
-        '[Xian Hang] Verify your emil address',  # subject
-        'Hi, %s! \n\n Thanks for joining us ! Click here to confirm your email >> %suser/%s/verify/' % (user.username, BASE_URL, user.id),  # message
-        EMAIL_HOST_USER,  # from email
-        [studentId + '@buaa.edu.cn'],  # to email
-    )
+    sendVerificationMail(user.id, studentId, username)
+
     return resOk({'message': 'email sent'})
 
 
@@ -181,6 +171,27 @@ def deacUser(request):
 
     return resOk()
 
+@require_http_methods(['DELETE'])
+@admin_logged_in
+def editStatus(request):
+    user = get_object_or_404(XHUser,id=id)
+
+    if user.status == XHUser.StatChoices.DEAC:
+        return resError(403, "User is deactivated.")
+
+    if not checkParameter(['status'],request):
+        return resMissingPara(['status'])
+    
+    data = json.loads(request.body)
+    status = data['status']
+
+    if not isInt(status) or status not in [XHUser.StatChoices.RESTRT]:
+        return resError(400, "Invalid status change")
+
+    user.status = status
+    user.save()
+
+    return resOk()
 
 @require_http_methods(['POST'])
 @check_logged_in

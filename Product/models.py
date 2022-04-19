@@ -20,5 +20,5 @@ class Product(models.Model):
             'description' : self.description,
             'price' : self.price,
             'stock' : self.stock,
-            'user' : self.user.body(),
+            'user' : self.user.id,
         }

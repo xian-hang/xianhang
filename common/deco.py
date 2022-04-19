@@ -2,6 +2,7 @@ import re
 from django.http import HttpResponse
 from XHUser.models import XHUser
 from rest_framework.authtoken.models import Token
+from common.restool import resError
 
 def check_logged_in(view):
     
@@ -14,9 +15,9 @@ def check_logged_in(view):
             if Token.objects.filter(key=auth[1]).exists():
                 return view(request, *args, **kwargs)
             else:
-                return HttpResponse(status=401)
+                return resError(401)
         else:
-            return HttpResponse(status=401)
+            return resError(401)
 
     return wrap
 
@@ -29,9 +30,9 @@ def admin_logged_in(view):
             if user.role == XHUser.RoleChoices.ADMIN:
                 return view(request, *args, **kwargs)
             else:
-                return HttpResponse(status=403)
+                return resError(403, "Only admins are allowed to access this link.")
         else:
-            return HttpResponse(status=401)
+            return resError(401)
 
     return wrap
 
@@ -43,8 +44,8 @@ def user_logged_in(view):
             if user.role == XHUser.RoleChoices.USER:
                 return view(request, *args, **kwargs)
             else:
-                return HttpResponse(status=403)
+                return resError(403, "Only users are allowed to access this link.")
         else:
-            return HttpResponse(status=401)
+            return resError(401)
 
     return wrap
