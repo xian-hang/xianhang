@@ -235,5 +235,11 @@ def searchUser(request):
 
     users = set(XHUser.objects.filter(username__contains=keyword))
     users |= set(XHUser.objects.filter(studentId__contains=keyword))
-    
+
     return resReturn({"result" : [u.body() for u in users]})
+
+
+def userProduct(request, id):
+    products = Product.objects.filter(user=id)
+    return resReturn({"result" : [p.body() for p in products]})
+
