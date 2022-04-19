@@ -9,7 +9,7 @@ from .models import XHUser
 from Product.models import Product
 from common.deco import admin_logged_in, check_logged_in
 from common.functool import checkParameter, getActiveUser, getReqUser
-from common.validation import isInt, isString, passwordValidation, usernameValidation 
+from common.validation import isInt, isString, passwordValidation, usernameValidation, keywordValidation
 from common.restool import resError, resMissingPara, resOk, resReturn
 from common.mail import mailtest, sendVerificationMail
 
@@ -230,7 +230,7 @@ def searchUser(request):
     data = json.loads(request.body)
     keyword = data['keyword']
 
-    if not isString(keyword):
+    if not keywordValidation(keyword):
         return resError(400, "Invalid keyword.")
 
     users = set(XHUser.objects.filter(username__contains=keyword))

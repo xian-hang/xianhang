@@ -7,7 +7,7 @@ from django.views.decorators.http import require_http_methods
 
 from common.deco import check_logged_in, user_logged_in
 from common.functool import checkParameter,getReqUser
-from common.validation import isString, stockValidation, priceValidation
+from common.validation import isString, keywordValidation, stockValidation, priceValidation
 from common.restool import resOk, resError, resMissingPara, resReturn
 
 # Create your views here.
@@ -111,7 +111,7 @@ def searchProduct(request):
     data = json.loads(request.body)
     keyword = data['keyword']
 
-    if not isString(keyword):
+    if not keywordValidation(keyword):
         return resError(400, "Invalid keyword.")
 
     products = Product.objects.filter(name__contains=keyword)

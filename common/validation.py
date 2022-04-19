@@ -10,6 +10,9 @@ def stockValidation(stock) -> bool:
 def priceValidation(price) -> bool:
     return isFloat(price) and price >= 0
 
+def keywordValidation(keyword) -> bool:
+    return isString(keyword) and len(keyword) >= 1
+
 def isString(keyword) -> bool:
     return isinstance(keyword, str)
 
