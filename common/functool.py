@@ -2,6 +2,7 @@ from itertools import islice
 import json
 from logging import raiseExceptions
 from XHUser.models import XHUser
+from Product.models import Product
 from rest_framework.authtoken.models import Token
 from django.core.exceptions import BadRequest, PermissionDenied, ObjectDoesNotExist
 
@@ -46,6 +47,8 @@ def getActiveUser(*args, **kwargs) -> XHUser:
     
     return None
 
+def pickUpAvailable(tradingMethod) -> bool:
+    return tradingMethod in [Product.TradingMethod.PICKUP, Product.TradingMethod.BOTH]
 
 _T = TypeVar("_T", bound=Model)
 def getObjectOrResError(errCode = 0, returnNone = False, klass: Type[_T] = None, *args, **kwargs) -> _T : 

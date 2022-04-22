@@ -1,3 +1,5 @@
+from Product.models import Product
+
 def usernameValidation(username) -> bool:
     return isString(username) and len(username) >= 4
 
@@ -12,6 +14,12 @@ def priceValidation(price) -> bool:
 
 def keywordValidation(keyword) -> bool:
     return isString(keyword) and len(keyword) >= 1
+
+def pickUpLocValidation(pickUpLoc) -> bool:
+    return isString(pickUpLoc) and len(pickUpLoc) >= 1
+
+def tradingMethodValidation(tradingMethod) -> bool:
+    return isInt(tradingMethod) and tradingMethod in Product.TradingMethod._value2member_map_
 
 def isString(keyword) -> bool:
     return isinstance(keyword, str)

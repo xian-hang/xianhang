@@ -6,8 +6,8 @@ from .models import Product
 from django.views.decorators.http import require_http_methods
 
 from common.deco import check_logged_in, user_logged_in
-from common.functool import checkParameter,getReqUser
-from common.validation import isString, keywordValidation, stockValidation, priceValidation
+from common.functool import checkParameter,getReqUser, pickUpAvailable
+from common.validation import isString, keywordValidation, pickUpLocValidation, stockValidation, priceValidation, tradingMethodValidation
 from common.restool import resOk, resError, resMissingPara, resReturn
 
 # Create your views here.
@@ -19,16 +19,28 @@ def createProduct(request):
     if user.status == XHUser.StatChoices.RESTRT:
         return resError(403, "User is restricted.")
 
-    if not checkParameter(["name","description","price","stock"], request):
-        return resError(400)
+    if not checkParameter(["name","description","price","stock","tradingMethod"], request):
+        return resMissingPara(["name","description","price","stock","tradingMethod"])
 
     data = json.loads(request.body)
     name = data['name']
     description = data['description']
     price = data['price']
     stock = data['stock']
-    if isString(name) and isString(description) and priceValidation(price) and stockValidation(stock):
-        product = Product.objects.create(name=name, description=description, price=price, stock=stock, user=user)
+    tradingMethod = data['tradingMethod']
+
+    if isString(name) and isString(description) and priceValidation(price) and stockValidation(stock) and tradingMethodValidation(tradingMethod):
+        if pickUpAvailable(tradingMethod):
+            if "pickUpLoc" in data:
+                pickUpLoc = data['pickUpLoc']
+                if pickUpLocValidation(pickUpLoc):
+                    product = Product.objects.create(name=name, description=description, price=price, stock=stock, user=user, tradingMethod=tradingMethod, pickUpLoc=pickUpLoc)
+                else:
+                    resError(400, "Invalid pickUpLoc.")
+            else:
+                return resMissingPara(["pickUpLoc"])
+        else:
+            product = Product.objects.create(name=name, description=description, price=price, stock=stock, user=user, tradingMethod=tradingMethod)
         return resReturn(product.body())
     else:
         return resError(400)
@@ -86,6 +98,25 @@ def editProduct(request,id):
         else:
             return resError(400, "Invalid stock.")
 
+    if "tradingMethod" in data:
+        tradingMethod = data['tradingMethod']
+        if tradingMethodValidation(tradingMethod):
+            product.tradingMethod = tradingMethod
+            if pickUpAvailable(tradingMethod):
+                if "pickUpLoc" in data:
+                    pickUpLoc = data['pickUpLoc']
+                    if pickUpLocValidation(pickUpLoc):
+                        product.pickUpLoc = pickUpLoc
+                    else:
+                        return resError(400, "Invalid pickUpLoc.")
+                else:
+                    return resMissingPara(["pickUpLoc"])
+            else:
+                product.pickUpLoc = ""
+            updated = {**updated, 'tradingMethod' : tradingMethod, 'pickUpLoc' : pickUpLoc}
+        else:
+            return resError(400, "Invalid tradingMethod.")
+ 
     product.save()
     return resReturn(updated)
 
