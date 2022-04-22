@@ -1,6 +1,9 @@
+from distutils.command.upload import upload
+from itertools import product
 import re
 from django.db import models
 from XHUser.models import XHUser
+from xianhang.settings import BASE_URL
 
 # Create your models here.
 class Product(models.Model):
@@ -45,3 +48,7 @@ class Product(models.Model):
             'pickUpLoc' : self.pickUpLoc,
             'user' : self.user.id,
         }
+
+class ProductImage(models.Model):
+    image = models.FileField(upload_to="productImage/")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=False, blank=False)

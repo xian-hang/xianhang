@@ -2,7 +2,7 @@ import json
 from django.shortcuts import render,get_object_or_404
 
 from XHUser.models import XHUser
-from .models import Product
+from .models import Product, ProductImage
 from django.views.decorators.http import require_http_methods
 
 from common.deco import check_logged_in, user_logged_in
@@ -48,7 +48,8 @@ def createProduct(request):
 
 def getProduct(request,id):
     product = get_object_or_404(Product, id=id)
-    return resReturn(product.body())
+    images = ProductImage.objects.filter(product=product)
+    return resReturn({'product' : product.body(), 'image' : [im.id for im in images]})
 
 
 @require_http_methods(['POST'])
