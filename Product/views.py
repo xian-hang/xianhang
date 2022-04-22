@@ -8,7 +8,7 @@ from django.views.decorators.http import require_http_methods
 from common.deco import check_logged_in, user_logged_in
 from common.functool import checkParameter,getReqUser, pickUpAvailable
 from common.validation import isString, keywordValidation, pickUpLocValidation, stockValidation, priceValidation, tradingMethodValidation
-from common.restool import resOk, resError, resMissingPara, resReturn
+from common.restool import resInvalidPara, resOk, resError, resMissingPara, resReturn
 
 # Create your views here.
 
@@ -36,14 +36,14 @@ def createProduct(request):
                 if pickUpLocValidation(pickUpLoc):
                     product = Product.objects.create(name=name, description=description, price=price, stock=stock, user=user, tradingMethod=tradingMethod, pickUpLoc=pickUpLoc)
                 else:
-                    return resError(400, "Invalid pickUpLoc.")
+                    return resInvalidPara(["pickUpLoc"])
             else:
                 return resMissingPara(["pickUpLoc"])
         else:
             product = Product.objects.create(name=name, description=description, price=price, stock=stock, user=user, tradingMethod=tradingMethod)
         return resReturn(product.body())
     else:
-        return resError(400, "Invalid name, description, price, stock or tradingMethod.")
+        return resInvalidPara(["name","description","price","stock","tradingMethod"])
 
 
 def getProduct(request,id):
@@ -73,7 +73,7 @@ def editProduct(request,id):
             product.name = name
             updated = {**updated, 'name' : name}
         else:
-            return resError(400, "Invalid name.")
+            return resInvalidPara(["name"])
 
     if "description" in data:
         description = data['description']
@@ -81,7 +81,7 @@ def editProduct(request,id):
             product.description = description
             updated = {**updated, 'description' : description}
         else:
-            return resError(400, "Invalid description.")
+            return resInvalidPara(["description"])
 
     if "price" in data:
         price = data['price']
@@ -89,7 +89,7 @@ def editProduct(request,id):
             product.price = price
             updated = {**updated, 'price' : price}
         else:
-            return resError(400, "Invalid price.")
+            return resInvalidPara(["price"])
 
     if "stock" in data:
         stock = data['stock']
@@ -97,7 +97,7 @@ def editProduct(request,id):
             product.stock = stock
             updated = {**updated, 'stock' : stock}
         else:
-            return resError(400, "Invalid stock.")
+            return resInvalidPara(["stock"])
 
     if "tradingMethod" in data:
         tradingMethod = data['tradingMethod']
@@ -110,14 +110,14 @@ def editProduct(request,id):
                         product.pickUpLoc = pickUpLoc
                         updated = {**updated, 'tradingMethod' : tradingMethod, 'pickUpLoc' : pickUpLoc}
                     else:
-                        return resError(400, "Invalid pickUpLoc.")
+                        return resInvalidPara(["pickUpLoc"])
                 else:
                     return resMissingPara(["pickUpLoc"])
             else:
                 product.pickUpLoc = ""
                 updated = {**updated, 'tradingMethod' : tradingMethod, 'pickUpLoc' : ""}
         else:
-            return resError(400, "Invalid tradingMethod.")
+            return resInvalidPara(["tradingMethod"])
 
     product.save()
     return resReturn(updated)
@@ -145,7 +145,7 @@ def searchProduct(request):
     keyword = data['keyword']
 
     if not keywordValidation(keyword):
-        return resError(400, "Invalid keyword.")
+        return resInvalidPara(["keyword"])
 
     products = Product.objects.filter(name__contains=keyword)
     return resReturn({"result" : [p.body() for p in products]})

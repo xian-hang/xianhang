@@ -13,3 +13,14 @@ def resMissingPara(list):
 
 def resReturn(data):
     return JsonResponse(data)
+
+def resInvalidPara(list:str):
+    if len(list) == 1:
+        return JsonResponse({'code' : 400, "message" : "Invalid " + list[0] + "."}, status=400)   
+
+    s = ""
+    for l in list[:-1]:
+         s += l + ", "
+    s += "or " + list[-1]
+
+    return JsonResponse({'code' : 400, "message" : "Invalid " + s + "."}, status=400)

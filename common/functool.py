@@ -31,9 +31,8 @@ def getReqUser(request) -> XHUser:
         return XHUser.objects.get(id=request.user.id)
     elif request.META.get('HTTP_AUTHORIZATION') is not None:
         auth = request.META.get('HTTP_AUTHORIZATION').split()
-        print(auth)
         if Token.objects.filter(key=auth[1]).exists():
-            return Token.objects.filter(key=auth[1])[0].user
+            return Token.objects.get(key=auth[1]).user
     else:
         return None
 

@@ -7,10 +7,11 @@ from django.shortcuts import get_object_or_404
 from xianhang.settings import EMAIL_HOST_USER
 from .models import XHUser
 from Product.models import Product
-from common.deco import admin_logged_in, check_logged_in
+from Collection.models import Collection
+from common.deco import admin_logged_in, check_logged_in, user_logged_in
 from common.functool import checkParameter, getActiveUser, getReqUser
 from common.validation import isInt, isString, passwordValidation, usernameValidation, keywordValidation
-from common.restool import resError, resMissingPara, resOk, resReturn
+from common.restool import resError, resInvalidPara, resMissingPara, resOk, resReturn
 from common.mail import mailtest, sendVerificationMail
 
 # Create your views here.
@@ -85,7 +86,7 @@ def createUser(request):
     password = data['password']
 
     if not usernameValidation(username) or not passwordValidation(password) or not isString(studentId):
-        return resError(400, "Invalid username, studentId or password.")
+        return resInvalidPara(["username", "studentId", "password"])
 
     if XHUser.objects.filter(studentId=studentId).exists():
         return resError(403, "Given student id exists.")
@@ -136,7 +137,7 @@ def editUser(request, id):
     if "username" in data:
         username = data['username']
         if not usernameValidation(username):
-            return resError(400, 'Invalid username')
+            return resInvalidPara(["username"])
         elif XHUser.objects.filter(username = username).exists():
             return resError(400, 'Username duplicated')
         else:
@@ -149,7 +150,7 @@ def editUser(request, id):
             user.introduction = introduction
             updated = {**updated, 'introduction_updated': introduction}
         else:
-            return resError(400, 'invalid introduction')
+            return resInvalidPara(["introduction"])
         
     user.save()
     return resReturn(updated)
@@ -188,7 +189,7 @@ def editStatus(request):
     status = data['status']
 
     if not isInt(status) or status not in [XHUser.StatChoices.RESTRT]:
-        return resError(400, "Invalid status change")
+        return resInvalidPara(["status"])
 
     user.status = status
     user.save()
@@ -231,15 +232,14 @@ def searchUser(request):
     keyword = data['keyword']
 
     if not keywordValidation(keyword):
-        return resError(400, "Invalid keyword.")
+        return resInvalidPara(["keyword"])
 
     users = set(XHUser.objects.filter(username__contains=keyword))
     users |= set(XHUser.objects.filter(studentId__contains=keyword))
 
-    return resReturn({"result" : [u.body() for u in users]})
+    return resReturn({"userId" : [u.body() for u in users]})
 
 
 def userProduct(request, id):
     products = Product.objects.filter(user=id)
-    return resReturn({"result" : [p.body() for p in products]})
-
+    return resReturn({"productId" : [p.body() for p in products]})
