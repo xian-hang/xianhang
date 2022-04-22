@@ -36,14 +36,14 @@ def createProduct(request):
                 if pickUpLocValidation(pickUpLoc):
                     product = Product.objects.create(name=name, description=description, price=price, stock=stock, user=user, tradingMethod=tradingMethod, pickUpLoc=pickUpLoc)
                 else:
-                    resError(400, "Invalid pickUpLoc.")
+                    return resError(400, "Invalid pickUpLoc.")
             else:
                 return resMissingPara(["pickUpLoc"])
         else:
             product = Product.objects.create(name=name, description=description, price=price, stock=stock, user=user, tradingMethod=tradingMethod)
         return resReturn(product.body())
     else:
-        return resError(400)
+        return resError(400, "Invalid name, description, price, stock or tradingMethod.")
 
 
 def getProduct(request,id):
@@ -107,16 +107,17 @@ def editProduct(request,id):
                     pickUpLoc = data['pickUpLoc']
                     if pickUpLocValidation(pickUpLoc):
                         product.pickUpLoc = pickUpLoc
+                        updated = {**updated, 'tradingMethod' : tradingMethod, 'pickUpLoc' : pickUpLoc}
                     else:
                         return resError(400, "Invalid pickUpLoc.")
                 else:
                     return resMissingPara(["pickUpLoc"])
             else:
                 product.pickUpLoc = ""
-            updated = {**updated, 'tradingMethod' : tradingMethod, 'pickUpLoc' : pickUpLoc}
+                updated = {**updated, 'tradingMethod' : tradingMethod, 'pickUpLoc' : ""}
         else:
             return resError(400, "Invalid tradingMethod.")
- 
+
     product.save()
     return resReturn(updated)
 
