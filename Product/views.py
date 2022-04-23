@@ -1,6 +1,5 @@
-from itertools import product
+
 import json
-from unittest import result
 from django.shortcuts import render,get_object_or_404
 import os
 

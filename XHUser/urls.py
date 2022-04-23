@@ -18,4 +18,7 @@ urlpatterns = [
     path('search/', views.searchUser),
     
     path('<int:id>/product/', views.userProduct),
+
+    path('like/create/', views.createLike),
+    path('like/<int:id>/delete/', views.deleteLike),
 ]

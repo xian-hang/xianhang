@@ -1,4 +1,3 @@
-from itertools import product
 import json
 from django.shortcuts import render, get_object_or_404
 from XHUser.models import XHUser
@@ -51,4 +50,4 @@ def deleteCollection(request,id):
 def collectionList(request):
     user = getReqUser(request)
     collections = Collection.objects.filter(user=user)
-    return resReturn({"result" : [c.product.body() for c in collections]})
+    return resReturn({"product" : [c.product.body() for c in collections]})

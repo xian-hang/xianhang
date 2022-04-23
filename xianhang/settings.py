@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'XHUser',
     'Product',
     'Collection',
+    'Followership',
 ]
 
 MIDDLEWARE = [

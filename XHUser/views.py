@@ -5,12 +5,12 @@ from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
 
 from xianhang.settings import EMAIL_HOST_USER
-from .models import XHUser
+from .models import XHUser, Like
 from Product.models import Product
 from Collection.models import Collection
 from common.deco import admin_logged_in, check_logged_in, user_logged_in
 from common.functool import checkParameter, getActiveUser, getReqUser
-from common.validation import isInt, isString, passwordValidation, usernameValidation, keywordValidation
+from common.validation import isInt, isString, passwordValidation, userIdValidation, usernameValidation, keywordValidation
 from common.restool import resBadRequest, resForbidden, resInvalidPara, resMissingPara, resOk, resReturn, resUnauthorized
 from common.mail import mailtest, sendVerificationMail
 
@@ -116,7 +116,14 @@ def verifyEmail(request, id):
 
 def getUser(request, id):
     user = get_object_or_404(XHUser,id=id)
-    return resReturn(user.body())
+
+    likeId = None
+    reqUser = getReqUser(request)
+    if reqUser is not None and Like.objects.filter(user=reqUser, liking=user).exists():
+        likeId = Like.objects.get(user=reqUser, liking=user).id
+    totalLike = Like.objects.filter(liking=user).count()
+
+    return resReturn({**user.body(), 'likeId': likeId, 'totalLike' : totalLike} )
 
 
 @require_http_methods(['POST'])
@@ -237,9 +244,41 @@ def searchUser(request):
     users = set(XHUser.objects.filter(username__contains=keyword))
     users |= set(XHUser.objects.filter(studentId__contains=keyword))
 
-    return resReturn({"result" : [u.body() for u in users]})
+    return resReturn({"user" : [u.body() for u in users]})
 
 
 def userProduct(request, id):
     products = Product.objects.filter(user=id)
-    return resReturn({"result" : [p.body() for p in products]})
+    return resReturn({"product" : [p.body() for p in products]})
+
+
+@require_http_methods(['POST'])
+@user_logged_in
+def createLike(request):
+    if not checkParameter(['userId'],request):
+        return resMissingPara(['userId'])
+
+    data = json.loads(request.body)
+    userId = data['userId']
+    reqUser = getReqUser(request)
+    if userIdValidation(userId) and reqUser.id != userId:
+        if not Like.objects.filter(user=reqUser, liking_id=userId).exists():
+            Like.objects.create(user=reqUser, liking_id=userId)
+            return resOk()
+        else:
+            return resBadRequest("Like exists.")
+    else:
+        return resInvalidPara(['userId'])
+
+
+@require_http_methods(['DELETE'])
+@user_logged_in
+def deleteLike(request,id):
+    like = get_object_or_404(Like, id=id)
+    reqUser = getReqUser(request)
+
+    if like.user.id != reqUser.id:
+        return resForbidden()
+
+    like.delete()
+    return resOk()

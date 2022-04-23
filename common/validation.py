@@ -1,4 +1,6 @@
 from Product.models import Product
+from XHUser.models import XHUser
+from common.functool import getActiveUser
 
 
 def isString(keyword) -> bool:
@@ -17,6 +19,9 @@ def usernameValidation(username) -> bool:
 
 def passwordValidation(password) -> bool:
     return isString(password) and len(password) >= 8
+
+def userIdValidation(id) -> bool:
+    return isInt(id) and XHUser.objects.filter(id=id).exists() and getActiveUser(id=id) is not None
 
 
 # Product validation

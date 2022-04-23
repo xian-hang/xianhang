@@ -39,3 +39,7 @@ class XHUser(User):
             'rating': self.rating,
             'status': {self.status : XHUser.StatChoices(self.status).label},
         }
+
+class Like(models.Model):
+    user = models.ForeignKey(XHUser, null=False, blank=False, related_name="creatingLikeUser", on_delete=models.CASCADE)
+    liking = models.ForeignKey(XHUser, null=False, blank=False, related_name="likingUser", on_delete=models.CASCADE)

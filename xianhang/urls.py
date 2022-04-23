@@ -21,4 +21,5 @@ urlpatterns = [
     path('user/', include('XHUser.urls')),
     path('product/', include('Product.urls')),
     path('collection/', include('Collection.urls')),
+    path('followership/', include('Followership.urls')),
 ]
