@@ -70,3 +70,12 @@ def getObjectOrResError(errCode = 0, returnNone = False, klass: Type[_T] = None,
             raise e
     
     return obj
+
+def saveFormOr400(form):
+    if form.is_valid():
+        try:
+            return form.save(commit=False)
+        except Exception as e:
+            raise BadRequest(e)
+    else:
+        raise BadRequest

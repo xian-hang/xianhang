@@ -1,4 +1,4 @@
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, FileResponse
 
 def resOk(message=""):
     return JsonResponse({'code' : 200, "message" : message})
@@ -24,3 +24,18 @@ def resInvalidPara(list:str):
     s += "or " + list[-1]
 
     return JsonResponse({'code' : 400, "message" : "Invalid " + s + "."}, status=400)
+
+def resForbidden(message=""):
+    return JsonResponse({'code' : 403, "message" : message}, status=403)
+
+def resUnauthorized(message=""):
+    return JsonResponse({'code' : 401, "message" : message}, status=401)
+
+def resNotFound(message=""):
+    return JsonResponse({'code' : 404, "message" : message}, status=404)
+
+def resBadRequest(message=""):
+    return JsonResponse({'code' : 400, "message" : message}, status=400)
+
+def resFile(file,filename=""):
+    return FileResponse(file,filename=filename)

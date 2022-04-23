@@ -8,4 +8,7 @@ urlpatterns = [
     path('<int:id>/edit/', views.editProduct),
     path('<int:id>/delete/', views.deleteProduct),
 
+    path('image/create/', views.createProductImage),
+    path('image/<int:id>/', views.getProductImage),
+    path('image/<int:id>/delete/', views.deleteProductImage),
 ]

@@ -1,14 +1,19 @@
+from itertools import product
 import json
+from unittest import result
 from django.shortcuts import render,get_object_or_404
+import os
 
 from XHUser.models import XHUser
 from .models import Product, ProductImage
 from django.views.decorators.http import require_http_methods
 
 from common.deco import check_logged_in, user_logged_in
-from common.functool import checkParameter,getReqUser, pickUpAvailable
-from common.validation import isString, keywordValidation, pickUpLocValidation, stockValidation, priceValidation, tradingMethodValidation
-from common.restool import resInvalidPara, resOk, resError, resMissingPara, resReturn
+from common.functool import checkParameter,getReqUser, pickUpAvailable, saveFormOr400
+from common.validation import isString, keywordValidation, pickUpLocValidation, productIdValidation, stockValidation, priceValidation, tradingMethodValidation
+from common.restool import resFile, resForbidden, resInvalidPara, resOk, resMissingPara, resReturn
+
+from .form import ProductImageForm
 
 # Create your views here.
 
@@ -17,7 +22,7 @@ from common.restool import resInvalidPara, resOk, resError, resMissingPara, resR
 def createProduct(request):
     user = XHUser.objects.get(username=request.user.username)
     if user.status == XHUser.StatChoices.RESTRT:
-        return resError(403, "User is restricted.")
+        return resForbidden("User is restricted.")
 
     if not checkParameter(["name","description","price","stock","tradingMethod"], request):
         return resMissingPara(["name","description","price","stock","tradingMethod"])
@@ -49,7 +54,7 @@ def createProduct(request):
 def getProduct(request,id):
     product = get_object_or_404(Product, id=id)
     images = ProductImage.objects.filter(product=product)
-    return resReturn({'product' : product.body(), 'image' : [im.id for im in images]})
+    return resReturn({'product' : product.body(), 'image' : [i.id for i in images]})
 
 
 @require_http_methods(['POST'])
@@ -59,7 +64,7 @@ def editProduct(request,id):
     product = get_object_or_404(Product, id=id)
 
     if reqUser.id != product.user.id:
-        return resError(403)
+        return resForbidden()
 
     if not request.body:
         return resOk()
@@ -130,7 +135,7 @@ def deleteProduct(request):
     product = get_object_or_404(Product, id=id)
 
     if reqUser.id != product.user.id:
-        return resError(403)
+        return resForbidden()
 
     product.delete()
     return resOk()
@@ -148,4 +153,55 @@ def searchProduct(request):
         return resInvalidPara(["keyword"])
 
     products = Product.objects.filter(name__contains=keyword)
-    return resReturn({"result" : [p.body() for p in products]})
+    
+    results = []
+    for p in products:
+        images = ProductImage.objects.filter(product=p)
+        results += [{'product' : p.body(), 'image' : [i.id for i in images]}]
+
+    return resReturn(dict(results = results))
+
+
+@require_http_methods(['POST'])
+@user_logged_in
+def createProductImage(request):
+    user = getReqUser(request)
+
+    if user.status == XHUser.StatChoices.RESTRT:
+        return resForbidden("User is restricted")
+
+    try:
+        productId = int(request.POST.get('productId'))
+    except:
+        return resInvalidPara(['productId'])
+
+    print(isinstance(productId,int))
+    if not productIdValidation(productId):
+        return resInvalidPara(['productId'])
+
+    form = ProductImageForm(request.POST, request.FILES)
+    image = saveFormOr400(form)
+    image.product = Product.objects.get(id=productId)
+    image.save()
+
+    return resOk()
+
+
+def getProductImage(request,id):
+    image = get_object_or_404(ProductImage,id=id)
+    return resFile(image.image)
+
+
+@require_http_methods(['DELETE'])
+@user_logged_in
+def deleteProductImage(request,id):
+    image = get_object_or_404(ProductImage,id=id)
+    user = getReqUser(request)
+
+    if user.id != image.product.user.id:
+        return resForbidden()
+
+    os.system("rm %s" % image.image.path)
+    image.delete()
+
+    return resOk()

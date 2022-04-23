@@ -11,7 +11,7 @@ from Collection.models import Collection
 from common.deco import admin_logged_in, check_logged_in, user_logged_in
 from common.functool import checkParameter, getActiveUser, getReqUser
 from common.validation import isInt, isString, passwordValidation, usernameValidation, keywordValidation
-from common.restool import resError, resInvalidPara, resMissingPara, resOk, resReturn
+from common.restool import resBadRequest, resForbidden, resInvalidPara, resMissingPara, resOk, resReturn, resUnauthorized
 from common.mail import mailtest, sendVerificationMail
 
 # Create your views here.
@@ -38,12 +38,12 @@ def userLogin(request):
     password = data['password']
 
     if not isString(studentId) or not isString(password):
-        return resError(401)
+        return resUnauthorized()
 
     try:
         user = XHUser.objects.get(studentId=studentId)
     except:
-        return resError(401)
+        return resUnauthorized()
 
     if user.role == XHUser.RoleChoices.ADMIN:
         if user.check_password(data['password']):
@@ -63,7 +63,7 @@ def userLogin(request):
                 'token': token.key
             })
 
-    return resError(401)
+    return resUnauthorized()
 
 
 @require_http_methods(["POST"])
@@ -89,10 +89,10 @@ def createUser(request):
         return resInvalidPara(["username", "studentId", "password"])
 
     if XHUser.objects.filter(studentId=studentId).exists():
-        return resError(403, "Given student id exists.")
+        return resForbidden("Given student id exists.")
     
     if XHUser.objects.filter(username=username).exists():
-        return resError(403, "Given username exists.")
+        return resForbidden("Given username exists.")
 
     user = XHUser.objects.create(username=username,
                                  studentId=studentId)
@@ -108,7 +108,7 @@ def createUser(request):
 def verifyEmail(request, id):
     user = get_object_or_404(XHUser,id=id)
     if user.status != XHUser.StatChoices.UNVER:
-        return resError(403)
+        return resForbidden()
     user.status = XHUser.StatChoices.VER
     user.save()
     return resOk({'message': 'email verified'})
@@ -126,7 +126,7 @@ def editUser(request, id):
     reqUser = getReqUser(request)
         
     if not reqUser.username == user.username:
-        return resError(403)
+        return resForbidden()
 
     if not request.body:
         return resOk()
@@ -139,7 +139,7 @@ def editUser(request, id):
         if not usernameValidation(username):
             return resInvalidPara(["username"])
         elif XHUser.objects.filter(username = username).exists():
-            return resError(400, 'Username duplicated')
+            return resBadRequest('Username duplicated')
         else:
             user.username = username
             updated = {**updated, 'username_updated': username}
@@ -163,7 +163,7 @@ def deacUser(request):
 
     if not reqUser.username == user.username:
         if not reqUser.role == XHUser.RoleChoices.ADMIN:
-            return resError(403)
+            return resForbidden()
 
     user.status = XHUser.StatChoices.DEAC
     user.save()
@@ -180,7 +180,7 @@ def editStatus(request):
     user = get_object_or_404(XHUser,id=id)
 
     if user.status == XHUser.StatChoices.DEAC:
-        return resError(403, "User is deactivated.")
+        return resForbidden("User is deactivated.")
 
     if not checkParameter(['status'],request):
         return resMissingPara(['status'])
@@ -203,7 +203,7 @@ def editPassword(request):
     reqUser = getReqUser(request)
         
     if reqUser.id != user.id:
-        return resError(403 , "User are not allowed to change other user's password.")
+        return resForbidden("User are not allowed to change other user's password.")
 
     if not checkParameter(['password','newPassword']):
         return resMissingPara(['password','newPassword'])
@@ -213,10 +213,10 @@ def editPassword(request):
     newPassword = data['newPassword']
 
     if not isString(password) or not reqUser.check_password(password):
-        return resError(403)
+        return resForbidden()
 
     if not passwordValidation(newPassword):
-        return resError(400)
+        return resBadRequest()
 
     user.set_password(newPassword)
     login(request, user)
@@ -237,9 +237,9 @@ def searchUser(request):
     users = set(XHUser.objects.filter(username__contains=keyword))
     users |= set(XHUser.objects.filter(studentId__contains=keyword))
 
-    return resReturn({"userId" : [u.body() for u in users]})
+    return resReturn({"result" : [u.body() for u in users]})
 
 
 def userProduct(request, id):
     products = Product.objects.filter(user=id)
-    return resReturn({"productId" : [p.body() for p in products]})
+    return resReturn({"result" : [p.body() for p in products]})

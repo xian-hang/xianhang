@@ -9,7 +9,7 @@ from django.views.decorators.http import require_http_methods
 
 from common.deco import user_logged_in
 from common.functool import checkParameter, getReqUser
-from common.restool import resError, resInvalidPara, resMissingPara, resOk, resReturn
+from common.restool import resBadRequest, resForbidden, resInvalidPara, resMissingPara, resOk, resReturn
 
 # Create your views here.
 
@@ -29,7 +29,7 @@ def createCollection(request):
             collection = Collection.objects.create(user=user, product=product)
             return resOk()
         else:
-            return resError(400, "Collection exists.")
+            return resBadRequest("Collection exists.")
     else:
         return resInvalidPara(["productId"])
     
@@ -41,7 +41,7 @@ def deleteCollection(request,id):
     collection = get_object_or_404(Collection, id=id)
 
     if user.id != collection.user.id:
-        return resError(403)
+        return resForbidden()
 
     collection.delete()
     return resOk()
