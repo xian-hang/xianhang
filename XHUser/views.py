@@ -1,6 +1,7 @@
 import json
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth import login, logout
+from Order.models import Order
 from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
 
@@ -10,7 +11,7 @@ from Product.models import Product
 from Collection.models import Collection
 from common.deco import admin_logged_in, check_logged_in, user_logged_in
 from common.functool import checkParameter, getActiveUser, getReqUser
-from common.validation import isInt, isString, passwordValidation, userIdValidation, usernameValidation, keywordValidation
+from common.validation import isInt, isString, passwordValidation, studentIdValidation, userIdValidation, usernameValidation, keywordValidation
 from common.restool import resBadRequest, resForbidden, resInvalidPara, resMissingPara, resOk, resReturn, resUnauthorized
 from common.mail import mailtest, sendVerificationMail
 
@@ -37,7 +38,7 @@ def userLogin(request):
     studentId = data['studentId']
     password = data['password']
 
-    if not isString(studentId) or not isString(password):
+    if not studentIdValidation(studentId) or not isString(password):
         return resUnauthorized()
 
     try:
@@ -85,7 +86,7 @@ def createUser(request):
     studentId = data['studentId']
     password = data['password']
 
-    if not usernameValidation(username) or not passwordValidation(password) or not isString(studentId):
+    if not (usernameValidation(username) and passwordValidation(password) and studentIdValidation(studentId)):
         return resInvalidPara(["username", "studentId", "password"])
 
     if XHUser.objects.filter(studentId=studentId).exists():
@@ -136,7 +137,7 @@ def editUser(request, id):
         return resForbidden()
 
     if not request.body:
-        return resOk()
+        return resBadRequest("Empty parameter.")
 
     data = json.loads(request.body)
     updated = {}
@@ -178,6 +179,11 @@ def deacUser(request):
     products = Product.objects.filter(user=user)
     for p in products:
         p.delete()
+
+    orders = Order.objects.filter(user=user, status=Order.StatChoice.UNPAID)
+    for o in orders:
+        o.status = Order.StatChoice.CANC
+        o.save()
 
     return resOk()
 

@@ -1,3 +1,4 @@
+from Order.models import Order
 from Product.models import Product
 from XHUser.models import XHUser
 from common.functool import getActiveUser
@@ -23,6 +24,9 @@ def passwordValidation(password) -> bool:
 def userIdValidation(id) -> bool:
     return isInt(id) and XHUser.objects.filter(id=id).exists() and getActiveUser(id=id) is not None
 
+def studentIdValidation(id) -> bool:
+    return isString(id) and len(id) >= 1
+
 
 # Product validation
 def stockValidation(stock) -> bool:
@@ -37,8 +41,38 @@ def keywordValidation(keyword) -> bool:
 def pickUpLocValidation(pickUpLoc) -> bool:
     return isString(pickUpLoc) and len(pickUpLoc) >= 1
 
-def tradingMethodValidation(tradingMethod) -> bool:
-    return isInt(tradingMethod) and tradingMethod in Product.TradingMethod._value2member_map_
+def tradingMethodValidation(method) -> bool:
+    return isInt(method) and method in Product.TradingMethod._value2member_map_
 
 def productIdValidation(id) -> bool:
     return isInt(id) and Product.objects.filter(id=id).exists()
+
+def nameValidation(name) -> bool:
+    return isString(name) and len(name) >= 1
+
+def descriptionValidation(description) -> bool:
+    return isString(description) and len(description) >= 1
+
+
+# Order validation
+# nameValidation same as Product's
+def priceValidation(price) -> bool:
+    return isFloat(price) and price >= 0
+
+def postageValidation(postage) -> bool:
+    return isFloat(postage) and postage >= 0
+
+def amountValidation(amount) -> bool:
+    return isInt(amount) and amount >= 1
+
+def phoneNumValidation(phoneNum) -> bool:
+    return isString(phoneNum) and len(phoneNum) == 11 and isdigit(phoneNum)
+
+def deliveringAddrValidation(deliveringAddr) -> bool:
+    return isString(deliveringAddr) and len(deliveringAddr) >= 1
+
+def orderStatusValidation(status) -> bool:
+    return isInt(status) and status in Order.StatChoice._value2member_map_
+
+def pickedTradingMethodValidation(method) -> bool:
+    return isInt(method) and method in Order.TradingMethod._value2member_map_

@@ -49,4 +49,4 @@ def deleteFollowership(request,id):
 def followershipList(request):
     user = getReqUser(request)
     followerships = Followership.objects.filter(user=user)
-    return resReturn({"user" : [c.user.body() for c in followerships]})
+    return resReturn({"result" : [f.body() for f in followerships]})

@@ -9,7 +9,7 @@ from django.views.decorators.http import require_http_methods
 
 from common.deco import check_logged_in, user_logged_in
 from common.functool import checkParameter,getReqUser, pickUpAvailable, saveFormOr400
-from common.validation import isString, keywordValidation, pickUpLocValidation, productIdValidation, stockValidation, priceValidation, tradingMethodValidation
+from common.validation import descriptionValidation, keywordValidation, nameValidation, pickUpLocValidation, productIdValidation, stockValidation, priceValidation, tradingMethodValidation
 from common.restool import resFile, resForbidden, resInvalidPara, resOk, resMissingPara, resReturn
 
 from .form import ProductImageForm
@@ -33,7 +33,7 @@ def createProduct(request):
     stock = data['stock']
     tradingMethod = data['tradingMethod']
 
-    if isString(name) and isString(description) and priceValidation(price) and stockValidation(stock) and tradingMethodValidation(tradingMethod):
+    if nameValidation(name) and descriptionValidation(description) and priceValidation(price) and stockValidation(stock) and tradingMethodValidation(tradingMethod):
         if pickUpAvailable(tradingMethod):
             if "pickUpLoc" in data:
                 pickUpLoc = data['pickUpLoc']
@@ -66,14 +66,14 @@ def editProduct(request,id):
         return resForbidden()
 
     if not request.body:
-        return resOk()
+        return resBadRequest("Empty parameter.")
 
     data = json.loads(request.body)
     updated = {}
 
     if "name" in data:
         name = data['name']
-        if isString(name):
+        if nameValidation(name):
             product.name = name
             updated = {**updated, 'name' : name}
         else:
@@ -81,7 +81,7 @@ def editProduct(request,id):
 
     if "description" in data:
         description = data['description']
-        if isString(description):
+        if descriptionValidation(description):
             product.description = description
             updated = {**updated, 'description' : description}
         else:

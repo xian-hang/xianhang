@@ -50,4 +50,4 @@ def deleteCollection(request,id):
 def collectionList(request):
     user = getReqUser(request)
     collections = Collection.objects.filter(user=user)
-    return resReturn({"product" : [c.product.body() for c in collections]})
+    return resReturn({"result" : [c.body() for c in collections]})

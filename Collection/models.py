@@ -6,3 +6,9 @@ from Product.models import Product
 class Collection(models.Model):
     user = models.ForeignKey(XHUser, null=False, blank=False, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, null=False, blank=False, on_delete=models.CASCADE)
+
+    def body(self) -> dict:
+        return {
+            'id' : self.id,
+            'product' : self.product.body(),
+        }
