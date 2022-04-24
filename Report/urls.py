@@ -6,4 +6,7 @@ urlpatterns = [
     path('<int:id>/', views.getReport),
     path('<int:id>/edit/', views.editReport),
     path('list/', views.getReportList),
+
+    path('image/create/',views.createReportImage),
+    path('image/<int:id>/',views.getReportImage),
 ]

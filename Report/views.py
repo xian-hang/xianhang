@@ -7,7 +7,7 @@ from .form import ReportImageForm
 from common.deco import admin_logged_in, user_logged_in
 from common.functool import checkParameter, getActiveUser, getReqUser, saveFormOr400
 from common.restool import resBadRequest, resFile, resForbidden, resInvalidPara, resMissingPara, resOk, resReturn
-from common.validation import descriptionValidation, reportStatusValidation, reportingIdValidation
+from common.validation import descriptionValidation, reportStatusValidation, reportingIdValidation, reportIdValidation
 
 # Create your views here.
 @require_http_methods(['POST'])
@@ -90,12 +90,18 @@ def createReportImage(request):
     except:
         return resInvalidPara(['reportId'])
 
-    if not reportingIdValidation(reportId) :
+    if not reportIdValidation(reportId) :
         return resInvalidPara(['reportId'])
+
+    report = Report.objects.get(id=reportId)
+    user = getReqUser(request)
+
+    if report.user.id != user.id:
+        return resForbidden("User is not allowed to create image for this report.")
 
     form = ReportImageForm(request.POST, request.FILES)
     image = saveFormOr400(form)
-    image.report = Report.objects.get(id=reportId)
+    image.report = report
     image.save()
 
     return resOk()
@@ -103,5 +109,5 @@ def createReportImage(request):
 
 @admin_logged_in
 def getReportImage(request,id):
-    image = get_object_or_404(id=id)
+    image = get_object_or_404(ReportImage, id=id)
     return resFile(image.image)

@@ -26,4 +26,3 @@ class Report(models.Model):
 class ReportImage(models.Model):
     image = models.FileField(upload_to="reportImage/")
     report = models.ForeignKey(Report, on_delete=models.CASCADE, null=False, blank=False)
-
