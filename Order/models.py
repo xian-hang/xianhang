@@ -21,8 +21,8 @@ class Order(models.Model):
     postage = models.DecimalField(decimal_places=2, max_digits=10, default=None, null=True)
     amount = models.IntegerField(default=1)
     status = models.IntegerField(choices=StatChoice.choices, default=0)
-    user = models.ForeignKey(XHUser, on_delete=models.SET_NULL)
-    product = models.ForeignKey(Product, on_delete=models.SET_NULL)
+    user = models.ForeignKey(XHUser, on_delete=models.SET_NULL, null=True)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
 
     name = models.CharField(max_length=150, null=False, blank=False)
     phoneNum = models.CharField(max_length=11, null=False, blank=False)
@@ -35,7 +35,8 @@ class Order(models.Model):
             'postage' : self.postage,
             'amount' : self.amount,
             'status' : self.status,
-            'product' : self.product.id,
+            'product' : self.product.id if self.product else None,
+            'user' : self.user.id if self.user else None,
             'name' : self.name,
             'phoneNum' : self.phoneNum,
             'tradingMethod' : self.tradingMethod,

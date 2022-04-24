@@ -32,7 +32,7 @@ class Product(models.Model):
     stock = models.IntegerField(default=1)
     user = models.ForeignKey(XHUser, on_delete=models.CASCADE, null=False, blank=False)
     tradingMethod = models.IntegerField(choices=TradingMethod.choices, default=0)
-    pickUpLoc = models.CharField(max_length=150, default="")
+    pickUpLoc = models.CharField(max_length=150, default="", blank=True)
 
     def __str__(self) -> str:
         return self.name

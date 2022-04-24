@@ -66,7 +66,7 @@ def amountValidation(amount) -> bool:
     return isInt(amount) and amount >= 1
 
 def phoneNumValidation(phoneNum) -> bool:
-    return isString(phoneNum) and len(phoneNum) == 11 and isdigit(phoneNum)
+    return isString(phoneNum) and len(phoneNum) == 11 and phoneNum.isdigit()
 
 def deliveringAddrValidation(deliveringAddr) -> bool:
     return isString(deliveringAddr) and len(deliveringAddr) >= 1

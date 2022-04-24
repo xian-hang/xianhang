@@ -12,7 +12,7 @@ from Collection.models import Collection
 from common.deco import admin_logged_in, check_logged_in, user_logged_in
 from common.functool import checkParameter, getActiveUser, getReqUser
 from common.validation import isInt, isString, passwordValidation, studentIdValidation, userIdValidation, usernameValidation, keywordValidation
-from common.restool import resBadRequest, resForbidden, resInvalidPara, resMissingPara, resOk, resReturn, resUnauthorized
+from common.restool import resBadRequest, resForbidden, resInvalidPara, resMissingPara, resNotFound, resOk, resReturn, resUnauthorized
 from common.mail import mailtest, sendVerificationMail
 
 # Create your views here.
@@ -116,7 +116,9 @@ def verifyEmail(request, id):
 
 
 def getUser(request, id):
-    user = get_object_or_404(XHUser,id=id)
+    user = getActiveUser(id=id)
+    if user is None:
+        return resNotFound()
 
     likeId = None
     reqUser = getReqUser(request)

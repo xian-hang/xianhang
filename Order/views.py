@@ -10,8 +10,8 @@ from .models import Order
 from django.views.decorators.http import require_http_methods
 
 from common.deco import user_logged_in
-from common.functool import checkParameter, getReqUser, pickUpChosen
-from common.validation import deliveringAddrValidation, pickedTradingMethodValidation, priceValidation, amountValidation, productIdValidation, nameValidation, phoneNumValidation
+from common.functool import checkParameter, getReqUser, pickUpAvailable
+from common.validation import deliveringAddrValidation, orderStatusValidation, pickedTradingMethodValidation, priceValidation, amountValidation, productIdValidation, nameValidation, phoneNumValidation
 
 # Create your views here.
 @require_http_methods(['POST'])
@@ -36,7 +36,10 @@ def createOrder(request):
     if user.id == product.user.id:
         return resBadRequest("Product belongs to user.")
 
-    if pickUpChosen(tradingMethod):
+    if tradingMethod == Order.TradingMethod.PICKUP:
+        if not pickUpAvailable(product.tradingMethod):
+            return resForbidden("Product is not allowed for pick up.")
+
         Order.objects.create(price=price, postage=0, amount=amount, product=product, user=user, name=name, phoneNum=phoneNum, tradingMethod=tradingMethod)
         return resOk()
     else:
@@ -62,6 +65,7 @@ def getOrder(request,id):
     return resReturn(order.body())
 
 
+@require_http_methods(['POST'])
 @user_logged_in
 def editOrder(request,id):
     order = get_object_or_404(Order, id=id)
@@ -73,7 +77,7 @@ def editOrder(request,id):
     if not request.body:
         return resBadRequest("Empty parameter.")
 
-    if order.status in [Order.StatChoice.UNPAID, Order.StatChoice.PAID]:
+    if order.status not in [Order.StatChoice.UNPAID, Order.StatChoice.PAID]:
         return resBadRequest("Order is not allowed to be modified anymore.")
 
     data = json.loads(request.body)
@@ -102,11 +106,15 @@ def editOrder(request,id):
             return resInvalidPara(['tradingMethod'])
 
         if tradingMethod == Order.TradingMethod.PICKUP:
+            if not pickUpAvailable(order.product.tradingMethod):
+                return resForbidden("Product is not allowed for pick up.")
+
             order.tradingMethod = tradingMethod
             order.deliveringAddr = ""
             updated = {**updated, 'tradingMethod' : tradingMethod, 'deliveringAddr' : ""}
+
         else:
-            if not checkParameter(['deliveringAddr']):
+            if not checkParameter(['deliveringAddr'],request):
                 return resMissingPara(['deliveringAddr'])
 
             addr = data['deliveringAddr']
@@ -128,12 +136,66 @@ def editOrderStatus(request,id):
     order = get_object_or_404(Order, id=id)
     user = getReqUser(request)
 
-    if user.id == order.user.id:
-        pass
-    elif user.id == order.product.user.id:
-        pass
-    else:
-        return resForbidden()
+    if not checkParameter(['status'], request):
+        return resMissingPara(['status'])
     
+    data = json.loads(request.body)
+    status = data['status']
+    if not orderStatusValidation(status):
+        return resInvalidPara(['status'])
+
+    if user.id == order.user.id:
+        if status == Order.StatChoice.PAID:
+            if order.status == Order.StatChoice.UNPAID:
+                if order.tradingMethod == order.TradingMethod.DELI and order.postage is None:
+                    return resForbidden("Postage is not confirmed yet.")
+            
+                order.status = status
+                if order.tradingMethod == order.TradingMethod.PICKUP:
+                    order.status = order.StatChoice.SHP
+                order.save()
+                return resOk("Order's status is changed from %s to %s." % (Order.StatChoice.UNPAID.label,Order.StatChoice(order.status).label))
+
+        elif status == Order.StatChoice.COMP:
+            if order.status == order.StatChoice.SHP:
+                order.status = status
+                order.save()
+                return resOk("Order's status is changed from %s to %s." % (Order.StatChoice.SHP.label,Order.StatChoice(order.status).label))
+
+        elif status == Order.StatChoice.CANC:
+            if order.status == order.StatChoice.UNPAID:
+                order.status = status
+                order.save()
+                return resOk("Order's status is changed from %s to %s." % (Order.StatChoice.UNPAID.label,Order.StatChoice(order.status).label))
+
+    elif user.id == order.product.user.id:
+        if status == Order.StatChoice.SHP:
+            if order.status == Order.StatChoice.PAID:
+                order.status = status
+                order.save()
+                return resOk("Order's status is changed from %s to %s." % (Order.StatChoice.PAID.label,Order.StatChoice(order.status).label))
+    
+    else:
+        return resForbidden("User is not allowed to edit order's status.")
 
     
+    return resForbidden("User is not allowed to change order's status from %s to %s." % (Order.StatChoice(order.status).label,Order.StatChoice(status).label))
+    
+
+@user_logged_in
+def sellingList(request):
+    user = getReqUser(request)
+    products = user.product_set.all()
+    orders = set()
+    for p in products:
+        orders |= set(p.order_set.all())
+
+    return resReturn({"order" : [o.body() for o in orders]})
+
+
+@user_logged_in
+def buyingList(request):
+    user = getReqUser(request)
+    orders = user.order_set.all()
+
+    return resReturn({"order" : [o.body() for o in orders]})
