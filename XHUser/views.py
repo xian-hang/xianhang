@@ -46,7 +46,7 @@ def userLogin(request):
     except:
         return resUnauthorized()
 
-    if user.role == XHUser.RoleChoices.ADMIN:
+    if user.role == XHUser.RoleChoice.ADMIN:
         if user.check_password(data['password']):
             login(request,user)
             token, created = Token.objects.get_or_create(user=user)
@@ -54,7 +54,7 @@ def userLogin(request):
                 'role': 'admin',
                 'token': token.key
             })
-    elif user.status in [XHUser.StatChoices.VER, XHUser.StatChoices.RESTRT]:
+    elif user.status in [XHUser.StatChoice.VER, XHUser.StatChoice.RESTRT]:
         if user.check_password(password):
             login(request,user)
             token, created = Token.objects.get_or_create(user=user)
@@ -108,9 +108,9 @@ def createUser(request):
 
 def verifyEmail(request, id):
     user = get_object_or_404(XHUser,id=id)
-    if user.status != XHUser.StatChoices.UNVER:
+    if user.status != XHUser.StatChoice.UNVER:
         return resForbidden()
-    user.status = XHUser.StatChoices.VER
+    user.status = XHUser.StatChoice.VER
     user.save()
     return resOk({'message': 'email verified'})
 
@@ -172,10 +172,10 @@ def deacUser(request):
     reqUser = getReqUser(request)
 
     if not reqUser.username == user.username:
-        if not reqUser.role == XHUser.RoleChoices.ADMIN:
+        if not reqUser.role == XHUser.RoleChoice.ADMIN:
             return resForbidden()
 
-    user.status = XHUser.StatChoices.DEAC
+    user.status = XHUser.StatChoice.DEAC
     user.save()
 
     products = Product.objects.filter(user=user)
@@ -194,7 +194,7 @@ def deacUser(request):
 def editStatus(request):
     user = get_object_or_404(XHUser,id=id)
 
-    if user.status == XHUser.StatChoices.DEAC:
+    if user.status == XHUser.StatChoice.DEAC:
         return resForbidden("User is deactivated.")
 
     if not checkParameter(['status'],request):
@@ -203,7 +203,7 @@ def editStatus(request):
     data = json.loads(request.body)
     status = data['status']
 
-    if not isInt(status) or status not in [XHUser.StatChoices.RESTRT]:
+    if not isInt(status) or status not in [XHUser.StatChoice.RESTRT]:
         return resInvalidPara(["status"])
 
     user.status = status

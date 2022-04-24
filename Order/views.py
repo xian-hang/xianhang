@@ -110,8 +110,8 @@ def editOrder(request,id):
                 return resForbidden("Product is not allowed for pick up.")
 
             order.tradingMethod = tradingMethod
-            order.deliveringAddr = ""
-            updated = {**updated, 'tradingMethod' : tradingMethod, 'deliveringAddr' : ""}
+            order.deliveringAddr = None
+            updated = {**updated, 'tradingMethod' : tradingMethod, 'deliveringAddr' : None}
 
         else:
             if not checkParameter(['deliveringAddr'],request):

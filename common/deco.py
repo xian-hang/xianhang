@@ -24,7 +24,7 @@ def admin_logged_in(view):
         user = getReqUser(request)
         if user is None:
             return resError(401)
-        elif user.role != XHUser.RoleChoices.ADMIN:
+        elif user.role != XHUser.RoleChoice.ADMIN:
             return resError(403, "Only admins are allowed to access this link.")
 
         return view(request, *args, **kwargs)
@@ -38,7 +38,7 @@ def user_logged_in(view):
         user = getReqUser(request)
         if user is None:
             return resError(401)
-        elif user.role != XHUser.RoleChoices.USER:
+        elif user.role != XHUser.RoleChoice.USER:
             return resError(403, "Only users are allowed to access this link.")
 
         return view(request, *args, **kwargs)

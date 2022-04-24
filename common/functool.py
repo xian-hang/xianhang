@@ -40,7 +40,7 @@ def getReqUser(request) -> XHUser:
 def getActiveUser(*args, **kwargs) -> XHUser:
     try:
         user = XHUser.objects.get(*args, **kwargs)
-        if user.role == XHUser.RoleChoices.USER and user.status in [XHUser.StatChoices.VER, XHUser.StatChoices.RESTRT]:
+        if user.role == XHUser.RoleChoice.USER and user.status in [XHUser.StatChoice.VER, XHUser.StatChoice.RESTRT]:
             return user
     except:
         pass

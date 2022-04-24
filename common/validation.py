@@ -1,6 +1,7 @@
 from Order.models import Order
 from Product.models import Product
 from XHUser.models import XHUser
+from Report.models import Report
 from common.functool import getActiveUser
 
 
@@ -76,3 +77,12 @@ def orderStatusValidation(status) -> bool:
 
 def pickedTradingMethodValidation(method) -> bool:
     return isInt(method) and method in Order.TradingMethod._value2member_map_
+
+
+# Report validation
+# descriptionValidation same as Product's
+def reportingIdValidation(id) -> bool:
+    return userIdValidation(id)
+
+def reportStatusValidation(status) -> bool:
+    return isInt(status) and status in Report.StatChoice._value2member_map_

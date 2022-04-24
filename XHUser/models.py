@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 # Create your models here.
 class XHUser(User):
 
-    class StatChoices(models.IntegerChoices):
+    class StatChoice(models.IntegerChoices):
         UNVER = 0, "Unverified"
         VER = 1, "Verified"
         DEAC = 2, "Deactivated"
@@ -15,17 +15,17 @@ class XHUser(User):
             
 
 
-    class RoleChoices(models.IntegerChoices):
+    class RoleChoice(models.IntegerChoices):
         USER = 0, "User"
         ADMIN = 1, "Admin"
 
     studentId = models.CharField(max_length=150, null=False, blank=False)
-    role = models.IntegerField(default=RoleChoices.USER,
-                               choices=RoleChoices.choices)
+    role = models.IntegerField(default=RoleChoice.USER,
+                               choices=RoleChoice.choices)
     soldItem = models.IntegerField(default=0)
     rating = models.DecimalField(default=100, decimal_places=1, max_digits=4)
-    status = models.IntegerField(default=StatChoices.UNVER,
-                                 choices=StatChoices.choices)
+    status = models.IntegerField(default=StatChoice.UNVER,
+                                 choices=StatChoice.choices)
 
     def __str__(self) -> str:
         return self.username
@@ -34,10 +34,10 @@ class XHUser(User):
         return {
             'username': self.username,
             'studentId': self.studentId,
-            'role': {self.role : XHUser.RoleChoices(self.role).label},
+            'role': {self.role : XHUser.RoleChoice(self.role).label},
             'soldItem': self.soldItem,
             'rating': self.rating,
-            'status': {self.status : XHUser.StatChoices(self.status).label},
+            'status': {self.status : XHUser.StatChoice(self.status).label},
         }
 
 class Like(models.Model):
