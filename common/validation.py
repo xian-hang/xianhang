@@ -86,3 +86,6 @@ def reportingIdValidation(id) -> bool:
 
 def reportStatusValidation(status) -> bool:
     return isInt(status) and status in Report.StatChoice._value2member_map_
+
+def reportIdValidation(id) -> bool:
+    return isInt(id) and Report.objects.filter(id=id).exists()

@@ -174,7 +174,6 @@ def createProductImage(request):
     except:
         return resInvalidPara(['productId'])
 
-    print(isinstance(productId,int))
     if not productIdValidation(productId):
         return resInvalidPara(['productId'])
 

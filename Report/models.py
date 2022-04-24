@@ -21,3 +21,9 @@ class Report(models.Model):
             'user' : self.user.id,
             'reporting' : self.reporting.id,
         }
+
+
+class ReportImage(models.Model):
+    image = models.FileField(upload_to="reportImage/")
+    report = models.ForeignKey(Report, on_delete=models.CASCADE, null=False, blank=False)
+

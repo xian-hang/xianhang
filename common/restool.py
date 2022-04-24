@@ -37,5 +37,5 @@ def resNotFound(message=""):
 def resBadRequest(message=""):
     return JsonResponse({'code' : 400, "message" : message}, status=400)
 
-def resFile(file,filename=""):
-    return FileResponse(file,filename=filename)
+def resFile(file):
+    return FileResponse(file)
