@@ -34,3 +34,22 @@ def sendVerificationMail(userId):
     except Exception as e:
         print(e)
         raise BadRequest(message="Send mail failed")
+
+
+def sendResetPasswordMail(userId):
+    try:
+        user = XHUser.objects.get(id=userId)
+        if Token.objects.filter(user=user).exists():
+            Token.objects.get(user=user).delete()
+        
+        token = Token.objects.create(user=user)
+
+        send_mail(
+            '[Xian Hang] Reset Password',  # subject
+            'Hi, %s! \n\n Forgot your password ? Click here to reset your password >> %suser/%s/reset/password/' % (user.username, BASE_URL, token.key),  # message
+            EMAIL_HOST_USER,  # from email
+            [user.studentId + '@buaa.edu.cn'],  # to email
+        )
+    except Exception as e:
+        print(e)
+        raise BadRequest(message="Send mail failed")

@@ -116,7 +116,7 @@ def getReportImage(request,id):
 @require_http_methods(['POST'])
 @admin_logged_in
 def createReportNotice(request):
-    if not checkParameter(['reportId']):
+    if not checkParameter(['reportId'], request):
         return resMissingPara(['reportId'])
 
     data = json.loads(request.body)

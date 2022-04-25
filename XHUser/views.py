@@ -12,7 +12,7 @@ from common.deco import admin_logged_in, check_logged_in, user_logged_in
 from common.functool import checkParameter, getActiveUser, getReqUser
 from common.validation import isInt, isString, passwordValidation, studentIdValidation, userIdValidation, usernameValidation, keywordValidation
 from common.restool import resBadRequest, resForbidden, resInvalidPara, resMissingPara, resNotFound, resOk, resReturn, resUnauthorized
-from common.mail import mailtest, sendVerificationMail
+from common.mail import mailtest, sendResetPasswordMail, sendVerificationMail
 
 # Create your views here.
 def checkReq(request):
@@ -120,7 +120,49 @@ def verifyEmail(request, key):
         return resForbidden()
     user.status = XHUser.StatChoice.VER
     user.save()
+
+    token.delete()
     return resOk("Email verified.")
+
+
+@require_http_methods(["POST"])
+def forgotPassword(request):
+    if not checkParameter(['studentId'],request):
+        return resMissingPara(['studentId'])
+
+    data = json.loads(request.body)
+    studentId = data['studentId']
+
+    if not (studentIdValidation(studentId) and XHUser.objects.filter(studentId=studentId).exists()):
+        return resInvalidPara(['studentId'])
+
+    user = XHUser.objects.get(studentId=studentId)
+    if user.status in [XHUser.StatChoice.UNVER, XHUser.StatChoice.DEAC]:
+        return resForbidden("User's account is not active.")
+    
+    sendResetPasswordMail(user.id)
+    
+    return resOk("Email sent.")
+
+
+@require_http_methods(["POST"])
+def resetPassword(request,key):
+    token = get_object_or_404(Token,key=key)
+    user = XHUser.objects.get(id=token.user.id)
+
+    if not checkParameter(['newPassword'],request):
+        return resMissingPara(['newPassword'])
+
+    data = json.loads(request.body)
+    newPassword = data['newPassword']
+
+    if not passwordValidation(newPassword):
+        return resInvalidPara(['newPassword'])
+    
+    user.set_password(newPassword)
+    login(request, user)
+    token.delete()
+    return resOk()
 
 
 def getUser(request, id):
@@ -225,7 +267,7 @@ def editStatus(request, id):
 def editPassword(request):
     reqUser = getReqUser(request)
 
-    if not checkParameter(['password','newPassword']):
+    if not checkParameter(['password','newPassword'],request):
         return resMissingPara(['password','newPassword'])
 
     data = json.loads(request.body)
