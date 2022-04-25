@@ -8,6 +8,7 @@ urlpatterns = [
     path('login/', views.userLogin),
     path('logout/', views.userLogout),
     path('create/', views.createUser),
+    path('<int:id>/resent/', views.resentVerificationEmail),
     path('<str:key>/verify/', views.verifyEmail),
 
     path('<int:id>/', views.getUser),

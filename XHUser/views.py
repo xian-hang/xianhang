@@ -103,7 +103,14 @@ def createUser(request):
     return resReturn({'userId' : user.id})
 
 
-
+@require_http_methods(["POST"])
+def resentVerificationEmail(request, id):
+    user = get_object_or_404(XHUser, id=id)
+    if user.status != XHUser.StatChoice.UNVER:
+        return resBadRequest("User's email is verified.")
+    
+    sendVerificationMail(user.id)
+    return resOk()
 
 
 def verifyEmail(request, key):
