@@ -191,7 +191,7 @@ def editStatus(request, id):
     user = get_object_or_404(XHUser,id=id)
 
     if user.status == XHUser.StatChoice.DEAC:
-        return resForbidden("User is deactivated.")
+        return resBadRequest("User is deactivated.")
 
     if not checkParameter(['status'],request):
         return resMissingPara(['status'])
