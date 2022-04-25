@@ -86,7 +86,7 @@ def editOrder(request,id):
         return resBadRequest("Empty parameter.")
 
     if order.status not in [Order.StatChoice.UNPAID, Order.StatChoice.PAID]:
-        return resBadRequest("Order is not allowed to be modified anymore.")
+        return resForbidden("Order is not allowed to be modified anymore.")
 
     data = json.loads(request.body)
     updated = {}
