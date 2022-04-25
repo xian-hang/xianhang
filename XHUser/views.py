@@ -205,6 +205,11 @@ def editStatus(request, id):
     user.status = status
     user.save()
 
+    products = Product.objects.filter(user=user)
+    for p in products:
+        p.stock = 0
+        p.save()
+
     return resOk()
 
 @require_http_methods(['POST'])

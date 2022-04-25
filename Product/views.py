@@ -10,7 +10,7 @@ from django.views.decorators.http import require_http_methods
 from common.deco import check_logged_in, user_logged_in
 from common.functool import checkParameter,getReqUser, pickUpAvailable, saveFormOr400
 from common.validation import descriptionValidation, keywordValidation, nameValidation, pickUpLocValidation, productIdValidation, stockValidation, priceValidation, tradingMethodValidation
-from common.restool import resFile, resForbidden, resInvalidPara, resOk, resMissingPara, resReturn
+from common.restool import resBadRequest, resFile, resForbidden, resInvalidPara, resOk, resMissingPara, resReturn
 
 from .form import ProductImageForm
 
@@ -20,7 +20,7 @@ from .form import ProductImageForm
 @user_logged_in
 def createProduct(request):
     user = XHUser.objects.get(username=request.user.username)
-    if user.status == XHUser.StatChoices.RESTRT:
+    if user.status == XHUser.StatChoice.RESTRT:
         return resForbidden("User is restricted.")
 
     if not checkParameter(["name","description","price","stock","tradingMethod"], request):
@@ -166,7 +166,7 @@ def searchProduct(request):
 def createProductImage(request):
     user = getReqUser(request)
 
-    if user.status == XHUser.StatChoices.RESTRT:
+    if user.status == XHUser.StatChoice.RESTRT:
         return resForbidden("User is restricted")
 
     try:
