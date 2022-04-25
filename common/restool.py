@@ -12,7 +12,7 @@ def resMissingPara(list):
     return JsonResponse({'code' : 400, "message" : str(list) + " are required."}, status=400)
 
 def resReturn(data):
-    return JsonResponse(data)
+    return JsonResponse({'code' : 200, **data})
 
 def resInvalidPara(list:str):
     if len(list) == 1:
