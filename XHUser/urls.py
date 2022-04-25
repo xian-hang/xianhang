@@ -12,6 +12,7 @@ urlpatterns = [
 
     path('<int:id>/', views.getUser),
     path('<int:id>/edit/', views.editUser),
+    path('<int:id>/delete/', views.deacUser),
     path('<int:id>/edit/password/', views.editPassword),
     path('<int:id>/edit/status/', views.editStatus),
 

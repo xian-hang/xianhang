@@ -103,7 +103,7 @@ def createUser(request):
 
     sendVerificationMail(user.id, studentId, username)
 
-    return resOk({'message': 'email sent'})
+    return resOk("Email sent.")
 
 
 def verifyEmail(request, id):
@@ -112,7 +112,7 @@ def verifyEmail(request, id):
         return resForbidden()
     user.status = XHUser.StatChoice.VER
     user.save()
-    return resOk({'message': 'email verified'})
+    return resOk("Email verified.")
 
 
 def getUser(request, id):
@@ -167,12 +167,12 @@ def editUser(request, id):
 
 @require_http_methods(['DELETE'])
 @check_logged_in
-def deacUser(request):
+def deacUser(request, id):
     user = get_object_or_404(XHUser,id=id)
     reqUser = getReqUser(request)
 
-    if not reqUser.username == user.username:
-        if not reqUser.role == XHUser.RoleChoice.ADMIN:
+    if reqUser.id != user.id:
+        if reqUser.role != XHUser.RoleChoice.ADMIN:
             return resForbidden()
 
     user.status = XHUser.StatChoice.DEAC
