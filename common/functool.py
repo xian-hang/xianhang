@@ -12,6 +12,7 @@ from django.db.models.base import Model
 from typing import Type, TypeVar
 from common.restool import resError
 from django.http import Http404
+from django.utils import timezone
 
 def checkParameter(list, request) -> bool:
     if not request.body:
@@ -33,7 +34,9 @@ def getReqUser(request) -> XHUser:
     elif request.META.get('HTTP_AUTHORIZATION') is not None:
         auth = request.META.get('HTTP_AUTHORIZATION').split()
         if Token.objects.filter(key=auth[1]).exists():
-            return Token.objects.get(key=auth[1]).user
+            token = Token.objects.get(key=auth[1])
+            user = XHUser.objects.get(id=token.user.id)
+            return user
     else:
         return None
 

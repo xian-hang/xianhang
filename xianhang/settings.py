@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 import environ
 import os   
@@ -86,9 +87,10 @@ WSGI_APPLICATION = 'xianhang.wsgi.application'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES' : (
         'rest_framework.authentication.TokenAuthentication',
-    ),
-    
+    ),    
 }
+
+# TOKEN_LIFETIME = timedelta(hours=8)
 
 
 # Database

@@ -8,7 +8,6 @@ from django.shortcuts import get_object_or_404
 from xianhang.settings import EMAIL_HOST_USER
 from .models import XHUser, Like
 from Product.models import Product
-from Collection.models import Collection
 from common.deco import admin_logged_in, check_logged_in, user_logged_in
 from common.functool import checkParameter, getActiveUser, getReqUser
 from common.validation import isInt, isString, passwordValidation, studentIdValidation, userIdValidation, usernameValidation, keywordValidation
@@ -20,7 +19,6 @@ def checkReq(request):
     print(getActiveUser(id=17))
     # print(request.META)
     return resOk()
-
 
 
 def sendEmailTest(request):
@@ -58,7 +56,6 @@ def userLogin(request):
         if user.check_password(password):
             login(request,user)
             token, created = Token.objects.get_or_create(user=user)
-            print(token)
             return resReturn({
                 'role': 'user',
                 'token': token.key
