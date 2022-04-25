@@ -156,7 +156,7 @@ def editOrderStatus(request,id):
         if status == Order.StatChoice.PAID:
             if order.status == Order.StatChoice.UNPAID:
                 if order.tradingMethod == order.TradingMethod.DELI and order.postage is None:
-                    return resForbidden("Postage is not confirmed yet.")
+                    return resBadRequest("Postage is not confirmed yet.")
             
                 order.status = status
                 if order.tradingMethod == order.TradingMethod.PICKUP:
@@ -187,7 +187,7 @@ def editOrderStatus(request,id):
         return resForbidden("User is not allowed to edit order's status.")
 
     
-    return resForbidden("User is not allowed to change order's status from %s to %s." % (Order.StatChoice(order.status).label,Order.StatChoice(status).label))
+    return resBadRequest("User is not allowed to change order's status from %s to %s." % (Order.StatChoice(order.status).label,Order.StatChoice(status).label))
     
 
 @user_logged_in
