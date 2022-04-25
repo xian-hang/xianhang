@@ -131,12 +131,8 @@ def getUser(request, id):
 
 @require_http_methods(['POST'])
 @check_logged_in
-def editUser(request, id):
-    user = get_object_or_404(XHUser,id=id)
+def editUser(request):
     reqUser = getReqUser(request)
-        
-    if not reqUser.username == user.username:
-        return resForbidden()
 
     if not request.body:
         return resBadRequest("Empty parameter.")
@@ -151,18 +147,18 @@ def editUser(request, id):
         elif XHUser.objects.filter(username = username).exists():
             return resBadRequest('Username duplicated')
         else:
-            user.username = username
+            reqUser.username = username
             updated = {**updated, 'username_updated': username}
 
     if "introduction" in data:
         introduction = data['introduction']
         if isString(introduction):
-            user.introduction = introduction
+            reqUser.introduction = introduction
             updated = {**updated, 'introduction_updated': introduction}
         else:
             return resInvalidPara(["introduction"])
         
-    user.save()
+    reqUser.save()
     return resReturn(updated)
 
 @require_http_methods(['DELETE'])
@@ -191,7 +187,7 @@ def deacUser(request, id):
 
 @require_http_methods(['DELETE'])
 @admin_logged_in
-def editStatus(request):
+def editStatus(request, id):
     user = get_object_or_404(XHUser,id=id)
 
     if user.status == XHUser.StatChoice.DEAC:
@@ -214,11 +210,7 @@ def editStatus(request):
 @require_http_methods(['POST'])
 @check_logged_in
 def editPassword(request):
-    user = get_object_or_404(XHUser,id=id)
     reqUser = getReqUser(request)
-        
-    if reqUser.id != user.id:
-        return resForbidden("User are not allowed to change other user's password.")
 
     if not checkParameter(['password','newPassword']):
         return resMissingPara(['password','newPassword'])
@@ -233,8 +225,8 @@ def editPassword(request):
     if not passwordValidation(newPassword):
         return resBadRequest()
 
-    user.set_password(newPassword)
-    login(request, user)
+    reqUser.set_password(newPassword)
+    login(request, reqUser)
     return resOk()
     
 
