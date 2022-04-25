@@ -11,4 +11,6 @@ urlpatterns = [
     path('image/create/', views.createProductImage),
     path('image/<int:id>/', views.getProductImage),
     path('image/<int:id>/delete/', views.deleteProductImage),
+
+    path('feed/', views.getFeed),
 ]

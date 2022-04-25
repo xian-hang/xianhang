@@ -203,3 +203,12 @@ def deleteProductImage(request,id):
     image.delete()
 
     return resOk()
+
+
+@user_logged_in
+def getFeed(request):
+    user = getReqUser(request)
+    followingId = user.creatingFollowershipUser.values_list('id')
+    users = XHUser.objects.filter(id__in=followingId)
+    products = Product.objects.filter(user__in=users)
+    return resReturn({'product' : [p.body() for p in products]})
