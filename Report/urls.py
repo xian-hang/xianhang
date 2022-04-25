@@ -9,4 +9,7 @@ urlpatterns = [
 
     path('image/create/',views.createReportImage),
     path('image/<int:id>/',views.getReportImage),
+
+    path('notice/create/', views.createReportNotice),
+    path('notice/', views.getReportNoticeList),
 ]

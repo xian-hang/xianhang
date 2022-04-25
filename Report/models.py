@@ -26,3 +26,14 @@ class Report(models.Model):
 class ReportImage(models.Model):
     image = models.FileField(upload_to="reportImage/")
     report = models.ForeignKey(Report, on_delete=models.CASCADE, null=False, blank=False)
+
+
+class ReportNotice(models.Model):
+    content = models.CharField(max_length=150, default=None, null=True)
+    report = models.ForeignKey(Report, on_delete=models.CASCADE)
+
+    def body(self) -> dict:
+        return {
+            'reportId' : self.report.id,
+            'content' : self.content,
+        }

@@ -1,13 +1,13 @@
 import json
 from django.shortcuts import render, get_object_or_404
-from Report.models import Report, ReportImage
+from Report.models import Report, ReportImage, ReportNotice
 from django.views.decorators.http import require_http_methods
 from .form import ReportImageForm
 
 from common.deco import admin_logged_in, user_logged_in
 from common.functool import checkParameter, getActiveUser, getReqUser, saveFormOr400
 from common.restool import resBadRequest, resFile, resForbidden, resInvalidPara, resMissingPara, resOk, resReturn
-from common.validation import descriptionValidation, reportStatusValidation, reportingIdValidation, reportIdValidation
+from common.validation import contentValidation, descriptionValidation, reportStatusValidation, reportingIdValidation, reportIdValidation
 
 # Create your views here.
 @require_http_methods(['POST'])
@@ -111,3 +111,43 @@ def createReportImage(request):
 def getReportImage(request,id):
     image = get_object_or_404(ReportImage, id=id)
     return resFile(image.image)
+
+
+@require_http_methods(['POST'])
+@admin_logged_in
+def createReportNotice(request):
+    if not checkParameter(['reportId']):
+        return resMissingPara(['reportId'])
+
+    data = json.loads(request.body)
+    reportId = data['reportId']
+
+    if not reportIdValidation(reportId):
+        return resInvalidPara(['reportId'])
+    
+    report = Report.objects.get(id=reportId)
+    if ReportNotice.objects.filter(report=report).exists():
+        return resBadRequest("Notice exixts.")
+
+    if "content" in data:
+        content = data['content']
+        if contentValidation(content):
+            ReportNotice.objects.create(report=report, content=content)
+            return resOk()
+        else:
+            return resInvalidPara(['content'])
+
+    ReportNotice.objects.create(report=report)
+    return resOk()
+
+
+@user_logged_in
+def getReportNoticeList(request):
+    user = getReqUser(request)
+
+    reports = set(Report.objects.filter(user=user))
+    reports |= set(Report.objects.filter(reporting=user, status=Report.StatChoice.APP))
+
+    notices = ReportNotice.objects.filter(report__in=reports)
+    return resReturn({'notice' : [n.body() for n in notices]})
+

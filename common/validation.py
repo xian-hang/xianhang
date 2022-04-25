@@ -89,3 +89,8 @@ def reportStatusValidation(status) -> bool:
 
 def reportIdValidation(id) -> bool:
     return isInt(id) and Report.objects.filter(id=id).exists()
+
+
+# Report Notice validation
+def contentValidation(content) -> bool:
+    return isString(content) and len(content) >= 1
