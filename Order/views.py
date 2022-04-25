@@ -31,16 +31,22 @@ def createOrder(request):
     if not (priceValidation(price) and amountValidation(amount)  and productIdValidation(productId) and nameValidation(name) and phoneNumValidation(phoneNum) and pickedTradingMethodValidation(tradingMethod)):
         return resInvalidPara(['price', 'amount', 'productId', 'name', 'phoneNum', 'tradingMethod'])
 
+
     user = getReqUser(request)
     product = Product.objects.get(id=productId)
     if user.id == product.user.id:
         return resBadRequest("Product belongs to user.")
+    
+    if amount > product.stock:
+        return resBadRequest("Purchase amount exceeds stock no.")
 
     if tradingMethod == Order.TradingMethod.PICKUP:
         if not pickUpAvailable(product.tradingMethod):
             return resForbidden("Product is not allowed for pick up.")
 
         Order.objects.create(price=price, postage=0, amount=amount, product=product, user=user, name=name, phoneNum=phoneNum, tradingMethod=tradingMethod)
+        product.stock -= amount
+        product.save()
         return resOk()
     else:
         if not checkParameter(['deliveringAddr'], request):
@@ -51,6 +57,8 @@ def createOrder(request):
             return resInvalidPara(['deliveringAddr'])
 
         Order.objects.create(price=price, amount=amount, product=product, user=user, name=name, phoneNum=phoneNum, tradingMethod=tradingMethod, deliveringAddr=addr)
+        product.stock -= amount
+        product.save()
         return resOk()
 
 
