@@ -98,13 +98,17 @@ def createUser(request):
     user.save()
     # token = Token.objects.create(user=user)
 
-    sendVerificationMail(user.id, studentId, username)
+    sendVerificationMail(user.id)
 
-    return resOk("Email sent.")
+    return resReturn({'userId' : user.id})
 
 
-def verifyEmail(request, id):
-    user = get_object_or_404(XHUser,id=id)
+
+
+
+def verifyEmail(request, key):
+    token = get_object_or_404(Token,key=key)
+    user = XHUser.objects.get(id=token.user.id)
     if user.status != XHUser.StatChoice.UNVER:
         return resForbidden()
     user.status = XHUser.StatChoice.VER

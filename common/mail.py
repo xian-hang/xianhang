@@ -1,6 +1,8 @@
 from django.core.mail import send_mail
+from XHUser.models import XHUser
 from xianhang.settings import EMAIL_HOST_USER, BASE_URL
 from django.core.exceptions import BadRequest
+from rest_framework.authtoken.models import Token
 
 def mailtest():
     try:
@@ -14,13 +16,20 @@ def mailtest():
         print(e)
         raise BadRequest
 
-def sendVerificationMail(userId,studentId,username):
+
+def sendVerificationMail(userId):
     try:
+        user = XHUser.objects.get(id=userId)
+        if Token.objects.filter(user=user).exists():
+            Token.objects.get(user=user).delete()
+        
+        token = Token.objects.create(user=user)
+
         send_mail(
             '[Xian Hang] Verify your emil address',  # subject
-            'Hi, %s! \n\n Thanks for joining us ! Click here to confirm your email >> %suser/%s/verify/' % (username, BASE_URL, userId),  # message
+            'Hi, %s! \n\n Thanks for joining us ! Click here to confirm your email >> %suser/%s/verify/' % (user.username, BASE_URL, token.key),  # message
             EMAIL_HOST_USER,  # from email
-            [studentId + '@buaa.edu.cn'],  # to email
+            [user.studentId + '@buaa.edu.cn'],  # to email
         )
     except Exception as e:
         print(e)
