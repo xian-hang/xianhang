@@ -26,7 +26,7 @@ def sendVerificationMail(userId):
         token = Token.objects.create(user=user)
 
         send_mail(
-            '[Xian Hang] Verify your emil address',  # subject
+            '[Xian Hang] Verify your email address',  # subject
             'Hi, %s! \n\n Thanks for joining us ! Click here to confirm your email >> %suser/%s/verify/' % (user.username, BASE_URL, token.key),  # message
             EMAIL_HOST_USER,  # from email
             [user.studentId + '@buaa.edu.cn'],  # to email
