@@ -162,6 +162,9 @@ def editOrderStatus(request,id):
                 if order.tradingMethod == order.TradingMethod.PICKUP:
                     order.status = order.StatChoice.SHP
                 order.save()
+
+                user.soldItem += order.amount
+                user.save()
                 return resOk("Order's status is changed from %s to %s." % (Order.StatChoice.UNPAID.label,Order.StatChoice(order.status).label))
 
         elif status == Order.StatChoice.COMP:
