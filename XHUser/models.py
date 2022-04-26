@@ -13,8 +13,6 @@ class XHUser(User):
         DEAC = 2, "Deactivated"
         RESTRT = 3, "Restricted"
             
-
-
     class RoleChoice(models.IntegerChoices):
         USER = 0, "User"
         ADMIN = 1, "Admin"
@@ -26,6 +24,7 @@ class XHUser(User):
     rating = models.DecimalField(default=100, decimal_places=1, max_digits=4)
     status = models.IntegerField(default=StatChoice.UNVER,
                                  choices=StatChoice.choices)
+    introduction=models.CharField(default="这个人很懒，什么都没留下。", max_length=150)
 
     def __str__(self) -> str:
         return self.username
@@ -34,6 +33,7 @@ class XHUser(User):
         return {
             'username': self.username,
             'studentId': self.studentId,
+            'introduction' : self.introduction,
             'role': {self.role : XHUser.RoleChoice(self.role).label},
             'soldItem': self.soldItem,
             'rating': self.rating,

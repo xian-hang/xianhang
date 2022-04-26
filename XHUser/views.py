@@ -58,7 +58,12 @@ def userLogin(request):
             token, created = Token.objects.get_or_create(user=user)
             return resReturn({
                 'role': 'user',
-                'token': token.key
+                'token': token.key,
+                'studentId' : user.studentId,
+                'username' : user.username,
+                'introduction' : user.introduction,
+                'rating' : user.rating,
+                'likes' : Like.objects.filter(liking=user).count(),
             })
 
     return resUnauthorized()
