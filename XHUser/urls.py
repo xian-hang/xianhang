@@ -14,6 +14,7 @@ urlpatterns = [
     path('forgot/password/', views.forgotPassword),
     path('<str:key>/reset/password/', views.resetPassword),
 
+    path('profile/', views.getProfile),
     path('<int:id>/', views.getUser),
     path('<int:id>/delete/', views.deacUser),
     path('<int:id>/edit/status/', views.editStatus),

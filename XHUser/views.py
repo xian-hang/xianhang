@@ -58,12 +58,7 @@ def userLogin(request):
             token, created = Token.objects.get_or_create(user=user)
             return resReturn({
                 'role': 'user',
-                'token': token.key,
-                'studentId' : user.studentId,
-                'username' : user.username,
-                'introduction' : user.introduction,
-                'rating' : user.rating,
-                'likes' : Like.objects.filter(liking=user).count(),
+                'token': token.key
             })
 
     return resUnauthorized()
@@ -182,6 +177,12 @@ def getUser(request, id):
     totalLike = Like.objects.filter(liking=user).count()
 
     return resReturn({**user.body(), 'likeId': likeId, 'totalLike' : totalLike} )
+
+
+@check_logged_in
+def getProfile(request):
+    user = getReqUser(request)
+    return getUser(request, user.id)
 
 
 @require_http_methods(['POST'])

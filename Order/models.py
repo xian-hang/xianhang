@@ -34,11 +34,11 @@ class Order(models.Model):
             'price' : self.price,
             'postage' : self.postage,
             'amount' : self.amount,
-            'status' : self.status,
+            'status' : {self.status : Order.StatChoice(self.status).label},
             'product' : self.product.id if self.product else None,
             'user' : self.user.id if self.user else None,
             'name' : self.name,
             'phoneNum' : self.phoneNum,
-            'tradingMethod' : self.tradingMethod,
+            'tradingMethod' : {self.tradingMethod : Order.TradingMethod(self.tradingMethod).label},
             'deliveringAddr' : self.deliveringAddr,
         }
