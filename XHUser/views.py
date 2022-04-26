@@ -68,7 +68,7 @@ def userLogin(request):
 @check_logged_in
 def userLogout(request):
     user = getReqUser(request)
-    Token.objects.filter(user=user).delete()
+    # Token.objects.filter(user=user).delete()
     logout(request)
     return resOk()
 
