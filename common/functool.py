@@ -83,3 +83,14 @@ def saveFormOr400(form):
             raise BadRequest(e)
     else:
         raise BadRequest
+
+def clearUser(user):
+    products = Product.objects.filter(user=user)
+    for p in products:
+        p.delete()
+
+    orders = Order.objects.filter(user=user, status=Order.StatChoice.UNPAID)
+    for o in orders:
+        o.status = Order.StatChoice.CANC
+        o.save()
+    
