@@ -204,7 +204,7 @@ def editUser(request):
         username = data['username']
         if not usernameValidation(username):
             return resInvalidPara(["username"])
-        elif XHUser.objects.filter(username = username).exists():
+        elif username != reqUser.username and XHUser.objects.filter(username = username).exists():
             return resBadRequest('Username duplicated')
         else:
             reqUser.username = username
