@@ -9,7 +9,7 @@ from xianhang.settings import EMAIL_HOST_USER
 from .models import XHUser, Like
 from Product.models import Product
 from common.deco import admin_logged_in, check_logged_in, user_logged_in
-from common.functool import checkParameter, getActiveUser, getReqUser
+from common.functool import checkParameter, clearUser, getActiveUser, getReqUser
 from common.validation import isInt, isString, passwordValidation, studentIdValidation, userIdValidation, usernameValidation, keywordValidation
 from common.restool import resBadRequest, resForbidden, resInvalidPara, resMissingPara, resNotFound, resOk, resReturn, resUnauthorized
 from common.mail import mailtest, sendResetPasswordMail, sendVerificationMail
@@ -221,29 +221,17 @@ def editUser(request):
     reqUser.save()
     return resOk()
 
+
 @require_http_methods(['DELETE'])
-@check_logged_in
-def deacUser(request, id):
-    user = get_object_or_404(XHUser,id=id)
+@user_logged_in
+def deacUser(request):
     reqUser = getReqUser(request)
+    reqUser.status = XHUser.StatChoice.DEAC
+    reqUser.save()
 
-    if reqUser.id != user.id:
-        if reqUser.role != XHUser.RoleChoice.ADMIN:
-            return resForbidden()
-
-    user.status = XHUser.StatChoice.DEAC
-    user.save()
-
-    products = Product.objects.filter(user=user)
-    for p in products:
-        p.delete()
-
-    orders = Order.objects.filter(user=user, status=Order.StatChoice.UNPAID)
-    for o in orders:
-        o.status = Order.StatChoice.CANC
-        o.save()
-
+    clearUser(reqUser)
     return resOk()
+
 
 @require_http_methods(['DELETE'])
 @admin_logged_in
@@ -259,18 +247,25 @@ def editStatus(request, id):
     data = json.loads(request.body)
     status = data['status']
 
-    if not isInt(status) or status not in [XHUser.StatChoice.RESTRT]:
-        return resInvalidPara(["status"])
+    if status == XHUser.StatChoice.RESTRT:
+        user.status = status
+        user.save()
 
-    user.status = status
-    user.save()
+        products = Product.objects.filter(user=user)
+        for p in products:
+            p.stock = 0
+            p.save()
 
-    products = Product.objects.filter(user=user)
-    for p in products:
-        p.stock = 0
-        p.save()
+        return resOk()
 
-    return resOk()
+    elif status == XHUser.StatChoice.DEAC:
+        user.status = status
+        user.save()
+        clearUser(user)
+        return resOk()
+    
+    else:
+        return resInvalidPara(['status'])
 
 @require_http_methods(['POST'])
 @check_logged_in

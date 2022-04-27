@@ -16,9 +16,9 @@ urlpatterns = [
 
     path('profile/', views.getProfile),
     path('<int:id>/', views.getUser),
-    path('<int:id>/delete/', views.deacUser),
     path('<int:id>/edit/status/', views.editStatus),
     path('edit/', views.editUser),
+    path('delete/', views.deacUser),
     path('edit/password/', views.editPassword),
 
     path('search/', views.searchUser),
