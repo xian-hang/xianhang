@@ -34,10 +34,10 @@ class XHUser(User):
             'username': self.username,
             'studentId': self.studentId,
             'introduction' : self.introduction,
-            'role': {self.role : XHUser.RoleChoice(self.role).label},
+            'role': self.role,
             'soldItem': self.soldItem,
             'rating': self.rating,
-            'status': {self.status : XHUser.StatChoice(self.status).label},
+            'status': self.status,
         }
 
 class Like(models.Model):

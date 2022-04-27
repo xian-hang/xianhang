@@ -69,13 +69,13 @@ def editProduct(request,id):
         return resBadRequest("Empty parameter.")
 
     data = json.loads(request.body)
-    updated = {}
+    # updated = {}
 
     if "name" in data:
         name = data['name']
         if nameValidation(name):
             product.name = name
-            updated = {**updated, 'name' : name}
+            # updated = {**updated, 'name' : name}
         else:
             return resInvalidPara(["name"])
 
@@ -83,7 +83,7 @@ def editProduct(request,id):
         description = data['description']
         if descriptionValidation(description):
             product.description = description
-            updated = {**updated, 'description' : description}
+            # updated = {**updated, 'description' : description}
         else:
             return resInvalidPara(["description"])
 
@@ -91,7 +91,7 @@ def editProduct(request,id):
         price = data['price']
         if priceValidation(price):
             product.price = price
-            updated = {**updated, 'price' : price}
+            # updated = {**updated, 'price' : price}
         else:
             return resInvalidPara(["price"])
 
@@ -99,7 +99,7 @@ def editProduct(request,id):
         stock = data['stock']
         if stockValidation(stock):
             product.stock = stock
-            updated = {**updated, 'stock' : stock}
+            # updated = {**updated, 'stock' : stock}
         else:
             return resInvalidPara(["stock"])
 
@@ -112,19 +112,19 @@ def editProduct(request,id):
                     pickUpLoc = data['pickUpLoc']
                     if pickUpLocValidation(pickUpLoc):
                         product.pickUpLoc = pickUpLoc
-                        updated = {**updated, 'tradingMethod' : tradingMethod, 'pickUpLoc' : pickUpLoc}
+                        # updated = {**updated, 'tradingMethod' : tradingMethod, 'pickUpLoc' : pickUpLoc}
                     else:
                         return resInvalidPara(["pickUpLoc"])
                 else:
                     return resMissingPara(["pickUpLoc"])
             else:
                 product.pickUpLoc = ""
-                updated = {**updated, 'tradingMethod' : tradingMethod, 'pickUpLoc' : ""}
+                # updated = {**updated, 'tradingMethod' : tradingMethod, 'pickUpLoc' : ""}
         else:
             return resInvalidPara(["tradingMethod"])
 
     product.save()
-    return resReturn(updated)
+    return resOk()
 
 
 @require_http_methods(['DELETE'])

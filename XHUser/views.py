@@ -49,7 +49,7 @@ def userLogin(request):
             login(request,user)
             token, created = Token.objects.get_or_create(user=user)
             return resReturn({
-                'role': 'admin',
+                'role': user.role,
                 'token': token.key
             })
     elif user.status in [XHUser.StatChoice.VER, XHUser.StatChoice.RESTRT]:
@@ -57,9 +57,13 @@ def userLogin(request):
             login(request,user)
             token, created = Token.objects.get_or_create(user=user)
             return resReturn({
-                'role': 'user',
+                'role': user.role,
                 'token': token.key
             })
+    elif user.status == XHUser.StatChoice.DEAC:
+        return resForbidden()
+    elif user.status == XHUser.StatChoice.UNVER:
+        return resBadRequest()
 
     return resUnauthorized()
 
@@ -194,7 +198,7 @@ def editUser(request):
         return resBadRequest("Empty parameter.")
 
     data = json.loads(request.body)
-    updated = {}
+    # updated = {}
         
     if "username" in data:
         username = data['username']
@@ -204,18 +208,18 @@ def editUser(request):
             return resBadRequest('Username duplicated')
         else:
             reqUser.username = username
-            updated = {**updated, 'username_updated': username}
+            # updated = {**updated, 'username_updated': username}
 
     if "introduction" in data:
         introduction = data['introduction']
         if isString(introduction):
             reqUser.introduction = introduction
-            updated = {**updated, 'introduction_updated': introduction}
+            # updated = {**updated, 'introduction_updated': introduction}
         else:
             return resInvalidPara(["introduction"])
         
     reqUser.save()
-    return resReturn(updated)
+    return resOk()
 
 @require_http_methods(['DELETE'])
 @check_logged_in
@@ -287,6 +291,7 @@ def editPassword(request):
         return resBadRequest()
 
     reqUser.set_password(newPassword)
+    reqUser.save()
     login(request, reqUser)
     return resOk()
     

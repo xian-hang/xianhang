@@ -17,9 +17,9 @@ class Report(models.Model):
         return {
             'id' : self.id,
             'description' : self.description,
-            'status' : {self.status : Report.StatChoice(self.status).label},
-            'user' : self.user.id,
-            'reporting' : self.reporting.id,
+            'status' : self.status,
+            'user' : self.user.id if self.user else None,
+            'reporting' : self.reporting.id if self.reporting else None,
         }
 
 

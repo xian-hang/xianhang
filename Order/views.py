@@ -89,13 +89,13 @@ def editOrder(request,id):
         return resForbidden("Order is not allowed to be modified anymore.")
 
     data = json.loads(request.body)
-    updated = {}
+    # updated = {}
 
     if "name" in data:
         name = data['name']
         if nameValidation(name):
             order.name = name
-            updated = {**updated, 'name' : name}
+            # updated = {**updated, 'name' : name}
         else:
             return resInvalidPara(['name'])
 
@@ -103,7 +103,7 @@ def editOrder(request,id):
         phoneNum = data['phoneNum']
         if phoneNumValidation(phoneNum):
             order.phoneNum = phoneNum
-            updated = {**updated, 'phoneNum' : phoneNum}
+            # updated = {**updated, 'phoneNum' : phoneNum}
         else:
             return resInvalidPara(['name'])
 
@@ -119,7 +119,7 @@ def editOrder(request,id):
 
             order.tradingMethod = tradingMethod
             order.deliveringAddr = None
-            updated = {**updated, 'tradingMethod' : tradingMethod, 'deliveringAddr' : None}
+            # updated = {**updated, 'tradingMethod' : tradingMethod, 'deliveringAddr' : None}
 
         else:
             if not checkParameter(['deliveringAddr'],request):
@@ -129,13 +129,13 @@ def editOrder(request,id):
             if deliveringAddrValidation(addr):
                 order.tradingMethod = tradingMethod
                 order.deliveringAddr = addr
-                updated = {**updated, 'tradingMethod' : tradingMethod, 'deliveringAddr' : addr}
+                # updated = {**updated, 'tradingMethod' : tradingMethod, 'deliveringAddr' : addr}
             else:
                 return resInvalidPara(['deliveringAddr'])
 
 
     order.save()
-    return resReturn(updated)
+    return resOk()
 
 
 @require_http_methods(['POST'])

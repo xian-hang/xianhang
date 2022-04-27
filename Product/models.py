@@ -44,7 +44,7 @@ class Product(models.Model):
             'description' : self.description,
             'price' : self.price,
             'stock' : self.stock,
-            'tradingMethod' : (self.tradingMethod, Product.TradingMethod(self.tradingMethod).label),
+            'tradingMethod' : self.tradingMethod,
             'pickUpLoc' : self.pickUpLoc,
             'user' : self.user.id,
         }
