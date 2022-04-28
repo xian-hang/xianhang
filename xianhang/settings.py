@@ -100,9 +100,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'xianhang',
-        'USER': 'xhadmin',
-        'PASSWORD': 'XianHang_123',
-        'HOST': 'localhost',
+        'USER': 'bcec33451dba75',
+        'PASSWORD': '719d8754',
+        'HOST': 'us-cdbr-east-05.cleardb.net',
         'PORT': 3306,
     }
 }
