@@ -99,7 +99,7 @@ REST_FRAMEWORK = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'xianhang',
+        'NAME': 'heroku_edc277cba62f490',
         'USER': 'bcec33451dba75',
         'PASSWORD': '719d8754',
         'HOST': 'us-cdbr-east-05.cleardb.net',
