@@ -100,8 +100,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'heroku_edc277cba62f490',
-        'USER': 'bcec33451dba75',
-        'PASSWORD': '719d8754',
+        'USER': os.environ['SQL_USER'],
+        'PASSWORD': os.environ['SQL_PASSWORD'],
         'HOST': 'us-cdbr-east-05.cleardb.net',
         'PORT': 3306,
     }
@@ -159,5 +159,5 @@ EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
 
-BASE_URL = 'http://localhost:8000/'
+BASE_URL = 'https://xianhang.herokuapp.com/'
 
