@@ -19,7 +19,7 @@ from .form import ProductImageForm
 @require_http_methods(['POST'])
 @user_logged_in
 def createProduct(request):
-    user = XHUser.objects.get(username=request.user.username)
+    user = getReqUser(request)
     if user.status == XHUser.StatChoice.RESTRT:
         return resForbidden("User is restricted.")
 
