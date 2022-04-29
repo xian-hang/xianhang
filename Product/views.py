@@ -163,6 +163,9 @@ def searchProduct(request):
 
     return resReturn(dict(results = results))
 
+def allProduct(request):
+    products = Product.objects.all()
+    return resReturn({'product' : [p.body() for p in products]})
 
 @require_http_methods(['POST'])
 @user_logged_in
