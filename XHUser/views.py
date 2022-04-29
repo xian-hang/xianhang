@@ -51,7 +51,7 @@ def userLogin(request):
             return resReturn({
                 'role': user.role,
                 'token': token.key,
-                'userId': user.id
+                'id': user.id
             })
     elif user.status in [XHUser.StatChoice.VER, XHUser.StatChoice.RESTRT]:
         if user.check_password(password):
@@ -60,7 +60,7 @@ def userLogin(request):
             return resReturn({
                 'role': user.role,
                 'token': token.key,
-                'userId': user.id
+                'id': user.id
             })
     elif user.status == XHUser.StatChoice.DEAC:
         return resForbidden()
