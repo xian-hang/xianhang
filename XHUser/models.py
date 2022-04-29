@@ -31,6 +31,7 @@ class XHUser(User):
 
     def body(self) -> dict:
         return {
+            'id': self.id,
             'username': self.username,
             'studentId': self.studentId,
             'introduction' : self.introduction,

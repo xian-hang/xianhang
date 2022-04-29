@@ -50,7 +50,8 @@ def userLogin(request):
             token, created = Token.objects.get_or_create(user=user)
             return resReturn({
                 'role': user.role,
-                'token': token.key
+                'token': token.key,
+                'userId': user.id
             })
     elif user.status in [XHUser.StatChoice.VER, XHUser.StatChoice.RESTRT]:
         if user.check_password(password):
@@ -58,7 +59,8 @@ def userLogin(request):
             token, created = Token.objects.get_or_create(user=user)
             return resReturn({
                 'role': user.role,
-                'token': token.key
+                'token': token.key,
+                'userId': user.id
             })
     elif user.status == XHUser.StatChoice.DEAC:
         return resForbidden()
