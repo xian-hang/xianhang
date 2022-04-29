@@ -222,7 +222,11 @@ def deleteProductImage(request,id):
     if user.id != image.product.user.id:
         return resForbidden()
 
-    os.system("rm %s" % image.image.path)
+    s3 = boto3.resource('s3',aws_access_key_id=AWS_ACCESS_KEY_ID,
+         aws_secret_access_key= AWS_SECRET_ACCESS_KEY)
+    obj = s3.Object('xianhang-bucket', MEDIA_URL + PI_URL + image.image.name)
+    r = obj.delete()
+
     image.delete()
 
     return resOk()
