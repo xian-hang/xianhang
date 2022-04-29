@@ -1,1 +1,1 @@
-web: gunicorn xianhang.wsgi
+web: waitress-serve --port=$PORT xianhang.wsgi:application

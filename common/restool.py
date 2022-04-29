@@ -39,3 +39,7 @@ def resBadRequest(message=""):
 
 def resFile(file):
     return FileResponse(file)
+
+def resImage(image,ext):
+    return FileResponse(image, content_type="image/" + ext)
+    
