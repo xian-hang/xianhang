@@ -132,7 +132,7 @@ def editProduct(request,id):
 
 @require_http_methods(['DELETE'])
 @user_logged_in
-def deleteProduct(request):
+def deleteProduct(request, id):
     reqUser = getReqUser(request)
     product = get_object_or_404(Product, id=id)
 
@@ -154,14 +154,8 @@ def searchProduct(request):
     if not keywordValidation(keyword):
         return resInvalidPara(["keyword"])
 
-    products = Product.objects.filter(name__contains=keyword)
-    
-    results = []
-    for p in products:
-        images = ProductImage.objects.filter(product=p)
-        results += [{'product' : p.body(), 'image' : [i.id for i in images]}]
-
-    return resReturn(dict(results = results))
+    products = Product.objects.filter(name__icontains=keyword)
+    return resReturn({'result' : [{'product' : p.body(), 'image' : getFirstProductImageId(p)} for p in products]})
 
 def allProduct(request):
     products = set(Product.objects.exclude(stock=0))
