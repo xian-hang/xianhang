@@ -48,7 +48,7 @@ def createProduct(request):
                 return resMissingPara(["pickUpLoc"])
         else:
             product = Product.objects.create(name=name, description=description, price=price, stock=stock, user=user, tradingMethod=tradingMethod)
-        return resReturn(product.body())
+        return resReturn({'product' : product.body()})
     else:
         return resInvalidPara(["name","description","price","stock","tradingMethod"])
 
