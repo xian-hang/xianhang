@@ -154,7 +154,11 @@ def searchProduct(request):
     if not keywordValidation(keyword):
         return resInvalidPara(["keyword"])
 
-    products = Product.objects.filter(name__icontains=keyword)
+    products = set(Product.objects.filter(name__icontains=keyword).exclude(stock=0))
+    user = getReqUser(request)
+    if user is not None:
+        products -= set(Product.objects.filter(user=user))
+
     return resReturn({'result' : [{'product' : p.body(), 'image' : getFirstProductImageId(p)} for p in products]})
 
 def allProduct(request):
