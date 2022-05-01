@@ -9,7 +9,7 @@ from .models import Product, ProductImage
 from django.views.decorators.http import require_http_methods
 
 from common.deco import check_logged_in, user_logged_in
-from common.functool import checkParameter,getReqUser, pickUpAvailable, saveFormOr400
+from common.functool import checkParameter, getFirstProductImageId,getReqUser, pickUpAvailable, saveFormOr400
 from common.validation import descriptionValidation, keywordValidation, nameValidation, pickUpLocValidation, productIdValidation, stockValidation, priceValidation, tradingMethodValidation
 from common.restool import resBadRequest, resFile, resForbidden, resImage, resInvalidPara, resOk, resMissingPara, resReturn
 import boto3
@@ -164,8 +164,11 @@ def searchProduct(request):
     return resReturn(dict(results = results))
 
 def allProduct(request):
-    products = Product.objects.all()
-    return resReturn({'product' : [p.body() for p in products]})
+    products = set(Product.objects.exclude(stock=0))
+    user = getReqUser(request)
+    if user is not None:
+        products -= set(Product.objects.filter(user=user))
+    return resReturn({'result' : [{'product' : p.body(), 'image' : getFirstProductImageId(p)} for p in products]})
 
 @require_http_methods(['POST'])
 @user_logged_in
@@ -238,7 +241,7 @@ def deleteProductImage(request,id):
 @user_logged_in
 def getFeed(request):
     user = getReqUser(request)
-    followingId = user.creatingFollowershipUser.values_list('id')
+    followingId = user.creatingFollowershipUser.values_list('following__id')
     users = XHUser.objects.filter(id__in=followingId)
     products = Product.objects.filter(user__in=users)
-    return resReturn({'product' : [p.body() for p in products]})
+    return resReturn({'result' : [{'product' : p.body(), 'image': getFirstProductImageId(p)} for p in products]})

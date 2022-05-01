@@ -2,7 +2,7 @@ from itertools import islice
 import json
 from logging import raiseExceptions
 from XHUser.models import XHUser
-from Product.models import Product
+from Product.models import Product, ProductImage
 from Order.models import Order
 from rest_framework.authtoken.models import Token
 from django.core.exceptions import BadRequest, PermissionDenied, ObjectDoesNotExist
@@ -94,3 +94,7 @@ def clearUser(user):
         o.status = Order.StatChoice.CANC
         o.save()
     
+def getFirstProductImageId(product):
+    if ProductImage.objects.filter(product=product).exists():
+        return [ProductImage.objects.filter(product=product)[0].id]
+    return []
