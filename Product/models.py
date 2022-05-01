@@ -46,7 +46,8 @@ class Product(models.Model):
             'stock' : self.stock,
             'tradingMethod' : self.tradingMethod,
             'pickUpLoc' : self.pickUpLoc,
-            'user' : self.user.id,
+            'userId' : self.user.id,
+            'username' : self.user.username,
         }
 
 class ProductImage(models.Model):
