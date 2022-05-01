@@ -1,3 +1,4 @@
+from itertools import product
 import json
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth import login, logout
@@ -9,7 +10,7 @@ from xianhang.settings import EMAIL_HOST_USER
 from .models import XHUser, Like
 from Product.models import Product
 from common.deco import admin_logged_in, check_logged_in, user_logged_in
-from common.functool import checkParameter, clearUser, getActiveUser, getReqUser
+from common.functool import checkParameter, clearUser, getActiveUser, getReqUser, getFirstProductImageId
 from common.validation import isInt, isString, passwordValidation, studentIdValidation, userIdValidation, usernameValidation, keywordValidation
 from common.restool import resBadRequest, resForbidden, resInvalidPara, resMissingPara, resNotFound, resOk, resReturn, resUnauthorized
 from common.mail import mailtest, sendResetPasswordMail, sendVerificationMail
@@ -320,8 +321,12 @@ def searchUser(request):
 
 
 def userProduct(request, id):
-    products = Product.objects.filter(user=id)
-    return resReturn({"product" : [p.body() for p in products]})
+    user = get_object_or_404(XHUser, id=id)
+    products = set(Product.objects.filter(user=user))
+    reqUser = getReqUser(request)
+    if reqUser is None or user.id != reqUser.id:
+        products -= set(Product.objects.filter(stock=0))
+    return resReturn({'result' : [{"product" : p.body(), 'image' : getFirstProductImageId(p)} for p in products]})
 
 
 @require_http_methods(['POST'])
