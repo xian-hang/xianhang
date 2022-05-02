@@ -6,6 +6,7 @@ import requests
 
 from XHUser.models import XHUser
 from .models import Product, ProductImage
+from Collection.models import Collection
 from django.views.decorators.http import require_http_methods
 
 from common.deco import check_logged_in, user_logged_in
@@ -56,7 +57,13 @@ def createProduct(request):
 def getProduct(request,id):
     product = get_object_or_404(Product, id=id)
     images = ProductImage.objects.filter(product=product)
-    return resReturn({'product' : product.body(), 'image' : [i.id for i in images]})
+
+    collectionId = None
+    user = getReqUser(request)
+    if user is not None and Collection.objects.filter(product=product, user=user).exists():
+        collectionId = Collection.objects.get(product=product, user=user).id
+    
+    return resReturn({'product' : product.body(), 'image' : [i.id for i in images], 'collectionId' : collectionId})
 
 
 @require_http_methods(['POST'])
