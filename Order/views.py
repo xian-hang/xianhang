@@ -10,7 +10,7 @@ from .models import Order
 from django.views.decorators.http import require_http_methods
 
 from common.deco import user_logged_in
-from common.functool import checkParameter, getReqUser, pickUpAvailable
+from common.functool import checkParameter, getFirstProductImageId, getReqUser, pickUpAvailable
 from common.validation import deliveringAddrValidation, orderStatusValidation, pickedTradingMethodValidation, priceValidation, amountValidation, productIdValidation, nameValidation, phoneNumValidation
 
 # Create your views here.
@@ -201,7 +201,7 @@ def sellingList(request):
     for p in products:
         orders |= set(p.order_set.all())
 
-    return resReturn({"order" : [o.body() for o in orders]})
+    return resReturn({"result" : [{'order' : o.body(), 'image' : getFirstProductImageId(o.product)} for o in orders]})
 
 
 @user_logged_in
@@ -209,4 +209,4 @@ def buyingList(request):
     user = getReqUser(request)
     orders = user.order_set.all()
 
-    return resReturn({"order" : [o.body() for o in orders]})
+    return resReturn({"result" : [{'order' : o.body(), 'image' : getFirstProductImageId(o.product)} for o in orders]})

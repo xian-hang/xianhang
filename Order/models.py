@@ -31,7 +31,7 @@ class Order(models.Model):
 
     def body(self) -> dict:
         return {
-            'id' : id,
+            'id' : self.id,
             'price' : self.price,
             'postage' : self.postage,
             'amount' : self.amount,
