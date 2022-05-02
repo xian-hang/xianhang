@@ -205,8 +205,43 @@ def sellingList(request):
 
 
 @user_logged_in
+def sellingListWithStatus(request):
+    if not checkParameter(['status'],request):
+        return resMissingPara(['status'])
+
+    data = json.loads(request.body)
+    status = data['status']
+    if not orderStatusValidation(status):
+        return resInvalidPara(['status'])
+
+    user = getReqUser(request)
+    products = user.product_set.all()
+    orders = set()
+    for p in products:
+        orders |= set(p.order_set.filter(status=status))
+
+    return resReturn({"result" : [{'order' : o.body(), 'image' : getFirstProductImageId(o.product)} for o in orders]})
+
+
+@user_logged_in
 def buyingList(request):
     user = getReqUser(request)
     orders = user.order_set.all()
+
+    return resReturn({"result" : [{'order' : o.body(), 'image' : getFirstProductImageId(o.product)} for o in orders]})
+
+
+@user_logged_in
+def buyingListWithStatus(request):
+    if not checkParameter(['status'],request):
+        return resMissingPara(['status'])
+
+    data = json.loads(request.body)
+    status = data['status']
+    if not orderStatusValidation(status):
+        return resInvalidPara(['status'])
+
+    user = getReqUser(request)
+    orders = user.order_set.filter(status=status)
 
     return resReturn({"result" : [{'order' : o.body(), 'image' : getFirstProductImageId(o.product)} for o in orders]})
