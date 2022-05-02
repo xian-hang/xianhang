@@ -1,3 +1,4 @@
+
 import json
 from django.shortcuts import render, get_object_or_404
 from Report.models import Report, ReportImage, ReportNotice
@@ -5,7 +6,7 @@ from django.views.decorators.http import require_http_methods
 from .form import ReportImageForm
 
 from common.deco import admin_logged_in, user_logged_in
-from common.functool import checkParameter, getActiveUser, getReqUser, saveFormOr400
+from common.functool import checkParameter, getActiveUser, getFirstReportImageId, getReqUser, saveFormOr400
 from common.restool import resBadRequest, resFile, resForbidden, resInvalidPara, resMissingPara, resOk, resReturn
 from common.validation import contentValidation, descriptionValidation, reportStatusValidation, reportingIdValidation, reportIdValidation
 
@@ -75,11 +76,11 @@ def getReportList(request):
             return resInvalidPara(['status'])
 
         reports = Report.objects.filter(status=status)
-        return resReturn({'result' : [r.body() for r in reports]})
+        return resReturn({'result' : [{'report' : r.body(), 'image' : getFirstReportImageId(r)} for r in reports]})
     
     else:
         reports = Report.objects.all()
-        return resReturn({'result' : [r.body() for r in reports]})
+        return resReturn({'result' : [{'report' : r.body(), 'image' : getFirstReportImageId(r)} for r in reports]})
 
 
 @require_http_methods(['POST'])
