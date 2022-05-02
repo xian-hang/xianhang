@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from xianhang.settings import EMAIL_HOST_USER
 from .models import XHUser, Like
 from Product.models import Product
+from Followership.models import Followership
 from common.deco import admin_logged_in, check_logged_in, user_logged_in
 from common.functool import checkParameter, clearUser, getActiveUser, getReqUser, getFirstProductImageId
 from common.validation import isInt, isString, passwordValidation, studentIdValidation, userIdValidation, usernameValidation, keywordValidation
@@ -187,12 +188,15 @@ def getUser(request, id):
         return resNotFound()
 
     likeId = None
+    followershipId = None
     reqUser = getReqUser(request)
     if reqUser is not None and Like.objects.filter(user=reqUser, liking=user).exists():
         likeId = Like.objects.get(user=reqUser, liking=user).id
+    if reqUser is not None and Followership.objects.filter(user=reqUser, following=user).exists():
+        followershipId = Followership.objects.get(user=reqUser, following=user).id
     totalLike = Like.objects.filter(liking=user).count()
 
-    return resReturn({**user.body(), 'likeId': likeId, 'totalLike' : totalLike} )
+    return resReturn({**user.body(), 'followershipId': followershipId, 'likeId': likeId, 'totalLike' : totalLike} )
 
 
 @check_logged_in
