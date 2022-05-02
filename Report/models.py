@@ -4,7 +4,7 @@ from XHUser.models import XHUser
 # Create your models here.
 class Report(models.Model):
     class StatChoice(models.IntegerChoices):
-        SUB = 0, "Submitted"
+        PEN = 0, "Pending"
         APP = 1, "Approved"
         REJ = 2, "Rejected"
 

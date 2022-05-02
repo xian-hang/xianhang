@@ -28,7 +28,7 @@ def createReport(request):
     if reqUser.id == reportingId:
         return resForbidden("Users are not allowed to report themselves.")
 
-    if Report.objects.filter(user=reqUser, reporting=reporting, status=Report.StatChoice.SUB):
+    if Report.objects.filter(user=reqUser, reporting=reporting, status=Report.StatChoice.PEN):
         return resForbidden("User has submitted a same report which has not been reviewed yet.")
 
     report = Report.objects.create(user=reqUser, description=description, reporting=reporting)
@@ -56,7 +56,7 @@ def editReport(request, id):
     if not reportStatusValidation(status):
         return resInvalidPara(['status'])
     
-    if report.status != Report.StatChoice.SUB:
+    if report.status != Report.StatChoice.PEN:
         return resBadRequest("Report status is not allowed to be changed anymore.")
 
     report.status = status
