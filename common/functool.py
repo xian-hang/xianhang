@@ -4,6 +4,7 @@ from logging import raiseExceptions
 from XHUser.models import XHUser
 from Product.models import Product, ProductImage
 from Order.models import Order
+from Report.models import ReportImage
 from rest_framework.authtoken.models import Token
 from django.core.exceptions import BadRequest, PermissionDenied, ObjectDoesNotExist
 
@@ -97,4 +98,9 @@ def clearUser(user):
 def getFirstProductImageId(product):
     if ProductImage.objects.filter(product=product).exists():
         return [ProductImage.objects.filter(product=product)[0].id]
+    return []
+
+def getFirstReportImageId(report):
+    if ReportImage.objects.filter(report=report).exists():
+        return [ReportImage.objects.filter(report=report)[0].id]
     return []
