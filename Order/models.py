@@ -36,7 +36,7 @@ class Order(models.Model):
             'postage' : self.postage,
             'amount' : self.amount,
             'status' : self.status,
-            'product' : self.product.id if self.product else None,
+            'product' : self.product.body() if self.product else None,
             'user' : self.user.id if self.user else None,
             'name' : self.name,
             'phoneNum' : self.phoneNum,
