@@ -70,7 +70,7 @@ def getOrder(request,id):
     if user.id != order.user.id and user.id != order.product.user.id:
         return resForbidden()
 
-    return resReturn(order.body())
+    return resReturn({'order' : order.body()})
 
 
 @require_http_methods(['POST'])
