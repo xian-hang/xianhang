@@ -21,7 +21,9 @@ def checkParameter(list, request) -> bool:
         # raise BadRequest(str(list) + " is required")
         return False
 
+    print(request.body)
     data = json.loads(request.body)
+    print(data)
     for x in list:
         if not x in data:
             print(x + " is missing")
