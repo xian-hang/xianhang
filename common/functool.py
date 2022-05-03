@@ -1,10 +1,11 @@
 from itertools import islice
 import json
 from logging import raiseExceptions
-from XHUser.models import XHUser
+from XHUser.models import XHUser, Like
 from Product.models import Product, ProductImage
 from Order.models import Order
 from Report.models import ReportImage
+from Followership.models import Followership
 from rest_framework.authtoken.models import Token
 from django.core.exceptions import BadRequest, PermissionDenied, ObjectDoesNotExist
 
@@ -94,6 +95,22 @@ def clearUser(user):
     for o in orders:
         o.status = Order.StatChoice.CANC
         o.save()
+
+    likes = Like.objects.filter(user=user)
+    for l in likes:
+        l.delete()
+
+    likeds = Like.objects.filter(liking=user)
+    for l in likeds:
+        l.delete()
+
+    followings = Followership.objects.filter(user=user)
+    for f in followings:
+        f.delete()
+
+    followeds = Followership.objects.filter(following=user)
+    for f in followings:
+        f.delete()
     
 def getFirstProductImageId(product):
     if ProductImage.objects.filter(product=product).exists():
