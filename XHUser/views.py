@@ -344,8 +344,8 @@ def createLike(request):
     reqUser = getReqUser(request)
     if userIdValidation(userId) and reqUser.id != userId:
         if not Like.objects.filter(user=reqUser, liking_id=userId).exists():
-            Like.objects.create(user=reqUser, liking_id=userId)
-            return resOk()
+            like = Like.objects.create(user=reqUser, liking_id=userId)
+            return resReturn({'likeId' : like.id})
         else:
             return resBadRequest("Like exists.")
     else:

@@ -26,7 +26,7 @@ def createCollection(request):
         product = Product.objects.get(id=productId)
         if not Collection.objects.filter(user=user, product=product).exists():
             collection = Collection.objects.create(user=user, product=product)
-            return resOk()
+            return resReturn({'collectionId' : collection.id})
         else:
             return resBadRequest("Collection exists.")
     else:

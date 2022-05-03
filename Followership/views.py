@@ -25,7 +25,7 @@ def createFollowership(request):
         following = XHUser.objects.get(id=userId)
         if not Followership.objects.filter(user=user, following=following).exists():
             followership = Followership.objects.create(user=user, following=following)
-            return resOk()
+            return resReturn({'followershipId' : followership.id})
         else:
             return resBadRequest("Followership exists.")
     else:
