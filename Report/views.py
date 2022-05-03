@@ -3,6 +3,7 @@ import json
 from django.shortcuts import render, get_object_or_404
 from Report.models import Report, ReportImage, ReportNotice
 from django.views.decorators.http import require_http_methods
+
 from .form import ReportImageForm
 
 from common.deco import admin_logged_in, user_logged_in
@@ -40,7 +41,10 @@ def createReport(request):
 def getReport(request, id):
     report = get_object_or_404(Report, id=id)
     images = ReportImage.objects.filter(report=report)
-    return resReturn({'report' : report.body(), 'image' : [i.id for i in images]})
+    return resReturn({'report' : report.body(), 
+                        'user' : getActiveUser(id=report.user.id).body() if getActiveUser(id=report.user.id) is not None else None, 
+                        'reporting' : getActiveUser(id=report.reporting.id).body() if getActiveUser(id=report.reporting.id) is not None else None,
+                        'image' : [i.id for i in images]})
 
 
 @require_http_methods(['POST'])
