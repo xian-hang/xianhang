@@ -20,7 +20,8 @@ class Report(models.Model):
             'status' : self.status,
             'userId' : self.user.id if self.user else None,
             'username' : self.user.username if self.user else None,
-            'reporting' : self.reporting.id if self.reporting else None,
+            'reportingId' : self.reporting.id if self.reporting else None,
+            'reportingUsername' : self.reporting.username if self.reporting else None,
         }
 
 
