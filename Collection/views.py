@@ -7,7 +7,7 @@ from .models import Collection
 from django.views.decorators.http import require_http_methods
 
 from common.deco import user_logged_in
-from common.functool import checkParameter, getReqUser
+from common.functool import checkParameter, getFirstProductImageId, getReqUser
 from common.restool import resBadRequest, resForbidden, resInvalidPara, resMissingPara, resOk, resReturn
 
 # Create your views here.
@@ -50,4 +50,4 @@ def deleteCollection(request,id):
 def collectionList(request):
     user = getReqUser(request)
     collections = Collection.objects.filter(user=user)
-    return resReturn({"result" : [c.body() for c in collections]})
+    return resReturn({"result" : [{'collection' : c.body(), 'image' : getFirstProductImageId(c.product)} for c in collections]})
