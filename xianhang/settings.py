@@ -96,27 +96,27 @@ REST_FRAMEWORK = {
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'xianhang',
-        'USER': 'xhadmin',
-        'PASSWORD': 'XianHang_123',
-        'HOST': 'localhost',
-        'PORT': 3306,
-    }
-}
-
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'heroku_edc277cba62f490',
-#         'USER': os.environ['SQL_USER'],
-#         'PASSWORD': os.environ['SQL_PASSWORD'],
-#         'HOST': 'us-cdbr-east-05.cleardb.net',
+#         'NAME': 'xianhang',
+#         'USER': 'xhadmin',
+#         'PASSWORD': 'XianHang_123',
+#         'HOST': 'localhost',
 #         'PORT': 3306,
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'heroku_edc277cba62f490',
+        'USER': os.environ['SQL_USER'],
+        'PASSWORD': os.environ['SQL_PASSWORD'],
+        'HOST': 'us-cdbr-east-05.cleardb.net',
+        'PORT': 3306,
+    }
+}
 
 
 # Password validation
