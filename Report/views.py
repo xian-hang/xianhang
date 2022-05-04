@@ -79,11 +79,11 @@ def getReportList(request):
         if not reportStatusValidation(status):
             return resInvalidPara(['status'])
 
-        reports = Report.objects.filter(status=status)
+        reports = Report.objects.filter(status=status).order_by('-id')
         return resReturn({'result' : [{'report' : r.body(), 'image' : getFirstReportImageId(r)} for r in reports]})
     
     else:
-        reports = Report.objects.all()
+        reports = Report.objects.all().order_by('-id')
         return resReturn({'result' : [{'report' : r.body(), 'image' : getFirstReportImageId(r)} for r in reports]})
 
 
