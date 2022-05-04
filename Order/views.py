@@ -205,7 +205,7 @@ def editOrderPostage(request, id):
     user = getReqUser(request)
     order = get_object_or_404(Order, id=id)
 
-    if user.id != order.product.user.id or order.tradingMethod != Order.TradingMethod.DELI:
+    if user.id != order.product.user.id or order.tradingMethod != Order.TradingMethod.DELI or order.postage != None:
         return resForbidden()
 
     if not checkParameter(['postage'], request):
