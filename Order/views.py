@@ -1,5 +1,6 @@
 from ast import Or
 from gc import get_objects
+from itertools import product
 import json
 from math import prod
 from django.shortcuts import render, get_object_or_404
@@ -178,6 +179,10 @@ def editOrderStatus(request,id):
             if order.status == order.StatChoice.UNPAID:
                 order.status = status
                 order.save()
+                
+                product = order.product
+                product.stock += order.amount
+                product.save()
                 return resOk("Order's status is changed from %s to %s." % (Order.StatChoice.UNPAID.label,Order.StatChoice(order.status).label))
 
     elif user.id == order.product.user.id:
