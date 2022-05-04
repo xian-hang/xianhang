@@ -141,8 +141,7 @@ def getImage(path):
                                                 Params={'Bucket': S3_BUCKET,
                                                         'Key': path},
                                                 ExpiresIn=3000)
-    
-    return requests.get(response)
+    return response
 
 def deleteImage(path):
     s3 = boto3.resource('s3',aws_access_key_id=AWS_ACCESS_KEY_ID,

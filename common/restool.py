@@ -1,4 +1,5 @@
 from django.http import JsonResponse, HttpResponse, FileResponse
+import requests
 
 def resOk(message=""):
     return JsonResponse({'code' : 200, "message" : message})
@@ -40,6 +41,7 @@ def resBadRequest(message=""):
 def resFile(file):
     return FileResponse(file)
 
-def resImage(image,ext):
+def resImage(res,ext):
+    image = requests.get(res)
     return FileResponse(image, content_type="image/" + ext)
     
