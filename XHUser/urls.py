@@ -16,6 +16,7 @@ urlpatterns = [
 
     path('profile/', views.getProfile),
     path('<int:id>/', views.getUser),
+    path('token/<str:key>/', views.getUserWithToken),
     path('<int:id>/edit/status/', views.editStatus),
     path('<int:id>/edit/rating/', views.editRating),
     path('edit/', views.editUser),

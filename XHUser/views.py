@@ -177,6 +177,7 @@ def resetPassword(request,key):
         return resInvalidPara(['newPassword'])
     
     user.set_password(newPassword)
+    user.save()
     login(request, user)
     token.delete()
     return resOk()
@@ -197,6 +198,12 @@ def getUser(request, id):
     totalLike = Like.objects.filter(liking=user).count()
 
     return resReturn({**user.body(), 'followershipId': followershipId, 'likeId': likeId, 'totalLike' : totalLike} )
+
+
+def getUserWithToken(request, key):
+    token = get_object_or_404(Token, key=key)
+    user = XHUser.objects.get(id=token.user.id)
+    return resReturn(user.body())
 
 
 @check_logged_in
