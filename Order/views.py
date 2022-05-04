@@ -163,8 +163,9 @@ def editOrderStatus(request,id):
                     order.status = order.StatChoice.SHP
                 order.save()
 
-                user.soldItem += order.amount
-                user.save()
+                seller = order.product.user
+                seller.soldItem += order.amount
+                seller.save()
                 return resOk("Order's status is changed from %s to %s." % (Order.StatChoice.UNPAID.label,Order.StatChoice(order.status).label))
 
         elif status == Order.StatChoice.COMP:

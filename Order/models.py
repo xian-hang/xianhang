@@ -27,7 +27,7 @@ class Order(models.Model):
     name = models.CharField(max_length=150, null=False, blank=False)
     phoneNum = models.CharField(max_length=11, null=False, blank=False)
     tradingMethod = models.IntegerField(choices=TradingMethod.choices, default=0)
-    deliveringAddr = models.CharField(max_length=150, default=None, null=True)
+    deliveringAddr = models.CharField(max_length=150, default=None, null=True, blank=True)
 
     def body(self) -> dict:
         return {
