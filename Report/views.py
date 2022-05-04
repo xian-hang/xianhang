@@ -34,7 +34,7 @@ def createReport(request):
         return resForbidden("User has submitted a same report which has not been reviewed yet.")
 
     report = Report.objects.create(user=reqUser, description=description, reporting=reporting)
-    return resOk()
+    return resReturn({'reportId' : report.id})
 
 
 @admin_logged_in
