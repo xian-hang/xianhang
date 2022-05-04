@@ -149,3 +149,6 @@ def deleteImage(path):
     obj = s3.Object(S3_BUCKET, path)
     r = obj.delete()
     return r
+
+def by_id(item):
+    return item.id
