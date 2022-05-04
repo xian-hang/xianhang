@@ -44,10 +44,10 @@ def createOrder(request):
         if not pickUpAvailable(product.tradingMethod):
             return resForbidden("Product is not allowed for pick up.")
 
-        Order.objects.create(price=price, postage=0, amount=amount, product=product, user=user, name=name, phoneNum=phoneNum, tradingMethod=tradingMethod)
+        order = Order.objects.create(price=price, postage=0, amount=amount, product=product, user=user, name=name, phoneNum=phoneNum, tradingMethod=tradingMethod)
         product.stock -= amount
         product.save()
-        return resOk()
+        return resReturn({'orderId' : order.id})
     else:
         if not checkParameter(['deliveringAddr'], request):
             return resMissingPara(['deliveringAddr'])
@@ -56,10 +56,10 @@ def createOrder(request):
         if not deliveringAddrValidation(addr):
             return resInvalidPara(['deliveringAddr'])
 
-        Order.objects.create(price=price, amount=amount, product=product, user=user, name=name, phoneNum=phoneNum, tradingMethod=tradingMethod, deliveringAddr=addr)
+        order = Order.objects.create(price=price, amount=amount, product=product, user=user, name=name, phoneNum=phoneNum, tradingMethod=tradingMethod, deliveringAddr=addr)
         product.stock -= amount
         product.save()
-        return resOk()
+        return resReturn({'orderId' : order.id})
 
 
 @user_logged_in
