@@ -7,8 +7,8 @@ from django.views.decorators.http import require_http_methods
 from .form import ReportImageForm
 
 from common.deco import admin_logged_in, user_logged_in
-from common.functool import checkParameter, getActiveUser, getFirstReportImageId, getReqUser, saveFormOr400
-from common.restool import resBadRequest, resFile, resForbidden, resInvalidPara, resMissingPara, resOk, resReturn
+from common.functool import checkParameter, getActiveUser, getFirstReportImageId, getImage, getReqUser, saveFormOr400, uploadImage
+from common.restool import resBadRequest, resFile, resForbidden, resImage, resInvalidPara, resMissingPara, resOk, resReturn
 from common.validation import contentValidation, descriptionValidation, reportStatusValidation, reportingIdValidation, reportIdValidation
 
 # Create your views here.
@@ -101,21 +101,30 @@ def createReportImage(request):
     report = Report.objects.get(id=reportId)
     user = getReqUser(request)
 
+
+    if report.status != Report.StatChoice.PEN:
+        return resForbidden("Report is reviewed.")
+
     if report.user.id != user.id:
         return resForbidden("User is not allowed to create image for this report.")
 
     form = ReportImageForm(request.POST, request.FILES)
-    image = saveFormOr400(form)
-    image.report = report
+    if not form.is_valid():
+        return resBadRequest("Form invalid.")
+
+    image = ReportImage.objects.create(report=report)
+    image.image = str(image.id) + "_" + request.FILES['image'].name
     image.save()
 
+    r = uploadImage(image.path, request.FILES['image'])
     return resOk()
 
 
 @admin_logged_in
-def getReportImage(request,id):
+def getReportImageUrl(request,id):
     image = get_object_or_404(ReportImage, id=id)
-    return resFile(image.image)
+    r = getImage(image.path)
+    return resReturn({'url' : r})
 
 
 @require_http_methods(['POST'])

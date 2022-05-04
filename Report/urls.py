@@ -8,7 +8,7 @@ urlpatterns = [
     path('list/', views.getReportList),
 
     path('image/create/',views.createReportImage),
-    path('image/<int:id>/',views.getReportImage),
+    path('image/<int:id>/url/',views.getReportImageUrl),
 
     path('notice/create/', views.createReportNotice),
     path('notice/', views.getReportNoticeList),

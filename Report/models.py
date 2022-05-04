@@ -1,5 +1,6 @@
 from django.db import models
 from XHUser.models import XHUser
+from xianhang.settings import RI_URL
 
 # Create your models here.
 class Report(models.Model):
@@ -29,6 +30,13 @@ class ReportImage(models.Model):
     image = models.FileField(upload_to="reportImage/")
     report = models.ForeignKey(Report, on_delete=models.CASCADE, null=False, blank=False)
 
+    @property
+    def path(self) -> str:
+        return RI_URL + self.image.name
+
+    @property
+    def ext(self) -> str:
+        return self.image.name.split('.')[-1]
 
 class ReportNotice(models.Model):
     content = models.CharField(max_length=150, default=None, null=True)
