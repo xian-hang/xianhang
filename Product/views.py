@@ -187,23 +187,26 @@ def createProductImage(request):
     if not productIdValidation(productId):
         return resInvalidPara(['productId'])
 
+    product = Product.objects.get(id=productId)
+    if user.id != product.user.id:
+        return resForbidden("User is not allowed to create image for this product.")
+
     form = ProductImageForm(request.POST, request.FILES)
     if not form.is_valid():
         return resBadRequest("Form invalid.")
 
-    product = Product.objects.get(id=productId)
     image = ProductImage.objects.create(product=product)
     image.image = str(image.id) + "_" + request.FILES['image'].name
     image.save()
 
-    r = uploadImage(image.path(), request.FILES['image'])
+    r = uploadImage(image.path, request.FILES['image'])
     return resOk()
 
 
 def getProductImage(request,id):
     image = get_object_or_404(ProductImage,id=id)
-    r = getImage(image.path())
-    return resImage(r,image.getExt())
+    r = getImage(image.path)
+    return resImage(r,image.ext)
 
 
 @require_http_methods(['DELETE'])
@@ -215,7 +218,7 @@ def deleteProductImage(request,id):
     if user.id != image.product.user.id:
         return resForbidden()
 
-    deleteImage(image.path())
+    deleteImage(image.path)
     image.delete()
 
     return resOk()

@@ -54,8 +54,10 @@ class ProductImage(models.Model):
     image = models.FileField(upload_to="productImage/")
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=False, blank=False)
 
+    @property
     def path(self) -> str:
         return PI_URL + self.image.name
 
-    def getExt(self) -> str:
+    @property
+    def ext(self) -> str:
         return self.image.name.split('.')[-1]
