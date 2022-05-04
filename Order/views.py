@@ -232,6 +232,7 @@ def sellingList(request):
     return resReturn({"result" : [{'order' : o.body(), 'image' : getFirstProductImageId(o.product)} for o in orders]})
 
 
+@require_http_methods(['POST'])
 @user_logged_in
 def sellingListWithStatus(request):
     if not checkParameter(['status'],request):
@@ -259,6 +260,7 @@ def buyingList(request):
     return resReturn({"result" : [{'order' : o.body(), 'image' : getFirstProductImageId(o.product)} for o in orders]})
 
 
+@require_http_methods(['POST'])
 @user_logged_in
 def buyingListWithStatus(request):
     if not checkParameter(['status'],request):
