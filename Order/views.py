@@ -11,7 +11,7 @@ from .models import Order
 from django.views.decorators.http import require_http_methods
 
 from common.deco import user_logged_in
-from common.functool import by_id, checkParameter, getFirstProductImageId, getReqUser, pickUpAvailable
+from common.functool import by_date, checkParameter, getFirstProductImageId, getReqUser, pickUpAvailable
 from common.validation import deliveringAddrValidation, orderStatusValidation, pickedTradingMethodValidation, postageValidation, priceValidation, amountValidation, productIdValidation, nameValidation, phoneNumValidation
 
 # Create your views here.
@@ -229,9 +229,7 @@ def sellingList(request):
     for p in products:
         orders |= set(p.order_set.all())
 
-    orders = sorted(orders, key=by_id, reverse=True)
-    print([o.id for o in orders])
-    print([id(o) for o in orders])
+    orders = sorted(orders, key=by_date, reverse=True)
     return resReturn({"result" : [{'order' : o.body(), 'image' : getFirstProductImageId(o.product)} for o in orders]})
 
 
@@ -252,6 +250,7 @@ def sellingListWithStatus(request):
     for p in products:
         orders |= set(p.order_set.filter(status=status))
 
+    orders = sorted(orders, key=by_date, reverse=True)
     return resReturn({"result" : [{'order' : o.body(), 'image' : getFirstProductImageId(o.product)} for o in orders]})
 
 
@@ -260,6 +259,7 @@ def buyingList(request):
     user = getReqUser(request)
     orders = user.order_set.all()
 
+    orders = sorted(orders, key=by_date, reverse=True)
     return resReturn({"result" : [{'order' : o.body(), 'image' : getFirstProductImageId(o.product)} for o in orders]})
 
 
@@ -277,4 +277,5 @@ def buyingListWithStatus(request):
     user = getReqUser(request)
     orders = user.order_set.filter(status=status)
 
+    orders = sorted(orders, key=by_date, reverse=True)
     return resReturn({"result" : [{'order' : o.body(), 'image' : getFirstProductImageId(o.product)} for o in orders]})

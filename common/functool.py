@@ -150,5 +150,5 @@ def deleteImage(path):
     r = obj.delete()
     return r
 
-def by_id(item):
+def by_date(item):
     return item.id
