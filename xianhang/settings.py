@@ -159,8 +159,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-PI_URL = 'productImage/'
-RI_URL = 'reportImage/'
+PI_URL = MEDIA_URL + 'productImage/'
+RI_URL = MEDIA_URL + 'reportImage/'
 
 AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
 AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']

@@ -1,8 +1,6 @@
 
 import json
 from django.shortcuts import render,get_object_or_404
-import os
-import requests
 
 from XHUser.models import XHUser
 from .models import Product, ProductImage
@@ -10,11 +8,9 @@ from Collection.models import Collection
 from django.views.decorators.http import require_http_methods
 
 from common.deco import check_logged_in, user_logged_in
-from common.functool import checkParameter, getFirstProductImageId,getReqUser, pickUpAvailable, saveFormOr400
+from common.functool import checkParameter, deleteImage, getFirstProductImageId, getImage,getReqUser, pickUpAvailable, uploadImage
 from common.validation import descriptionValidation, keywordValidation, nameValidation, pickUpLocValidation, productIdValidation, stockValidation, priceValidation, tradingMethodValidation
 from common.restool import resBadRequest, resFile, resForbidden, resImage, resInvalidPara, resOk, resMissingPara, resReturn
-import boto3
-from xianhang.settings import AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,S3_BUCKET, MEDIA_URL, PI_URL
 
 from .form import ProductImageForm
 
@@ -191,7 +187,6 @@ def createProductImage(request):
     if not productIdValidation(productId):
         return resInvalidPara(['productId'])
 
-    # print(type(request.FILES['image'].file))
     form = ProductImageForm(request.POST, request.FILES)
     if not form.is_valid():
         return resBadRequest("Form invalid.")
@@ -201,27 +196,14 @@ def createProductImage(request):
     image.image = str(image.id) + "_" + request.FILES['image'].name
     image.save()
 
-    imData = request.FILES['image']
-    s3 = boto3.resource('s3',aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key= AWS_SECRET_ACCESS_KEY)
-    obj = s3.Object('xianhang-bucket', MEDIA_URL + PI_URL + image.image.name)
-    r = obj.put(Body=imData)
-    print(r)
-
+    r = uploadImage(image.path(), request.FILES['image'])
     return resOk()
 
 
 def getProductImage(request,id):
     image = get_object_or_404(ProductImage,id=id)
-
-    s3_client = boto3.client('s3',aws_access_key_id=AWS_ACCESS_KEY_ID,
-         aws_secret_access_key= AWS_SECRET_ACCESS_KEY)
-    response = s3_client.generate_presigned_url('get_object',
-                                                Params={'Bucket': 'xianhang-bucket',
-                                                        'Key': MEDIA_URL + PI_URL + image.image.name},
-                                                ExpiresIn=3000)
-    r = requests.get(response)
-    ext = image.image.name.split('.')[-1]
-    return resImage(r,ext)
+    r = getImage(image.path())
+    return resImage(r,image.getExt())
 
 
 @require_http_methods(['DELETE'])
@@ -233,11 +215,7 @@ def deleteProductImage(request,id):
     if user.id != image.product.user.id:
         return resForbidden()
 
-    s3 = boto3.resource('s3',aws_access_key_id=AWS_ACCESS_KEY_ID,
-         aws_secret_access_key= AWS_SECRET_ACCESS_KEY)
-    obj = s3.Object('xianhang-bucket', MEDIA_URL + PI_URL + image.image.name)
-    r = obj.delete()
-
+    deleteImage(image.path())
     image.delete()
 
     return resOk()

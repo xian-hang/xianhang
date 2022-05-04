@@ -3,7 +3,7 @@ from itertools import product
 import re
 from django.db import models
 from XHUser.models import XHUser
-from xianhang.settings import BASE_URL
+from xianhang.settings import BASE_URL, PI_URL
 
 # Create your models here.
 class Product(models.Model):
@@ -53,3 +53,9 @@ class Product(models.Model):
 class ProductImage(models.Model):
     image = models.FileField(upload_to="productImage/")
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=False, blank=False)
+
+    def path(self) -> str:
+        return PI_URL + self.image.name
+
+    def getExt(self) -> str:
+        return self.image.name.split('.')[-1]

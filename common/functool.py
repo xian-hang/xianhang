@@ -9,6 +9,10 @@ from Followership.models import Followership
 from rest_framework.authtoken.models import Token
 from django.core.exceptions import BadRequest, PermissionDenied, ObjectDoesNotExist
 
+import boto3
+from xianhang.settings import AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,S3_BUCKET
+import requests
+
 
 from django.db.models.base import Model
 from typing import Type, TypeVar
@@ -123,3 +127,26 @@ def getFirstReportImageId(report):
     if ReportImage.objects.filter(report=report).exists():
         return [ReportImage.objects.filter(report=report)[0].id]
     return []
+
+def uploadImage(path, data):
+    s3 = boto3.resource('s3',aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key= AWS_SECRET_ACCESS_KEY)
+    obj = s3.Object(S3_BUCKET, path)
+    r = obj.put(Body=data)
+    return r
+
+def getImage(path):
+    s3_client = boto3.client('s3',aws_access_key_id=AWS_ACCESS_KEY_ID,
+         aws_secret_access_key= AWS_SECRET_ACCESS_KEY)
+    response = s3_client.generate_presigned_url('get_object',
+                                                Params={'Bucket': S3_BUCKET,
+                                                        'Key': path},
+                                                ExpiresIn=3000)
+    
+    return requests.get(response)
+
+def deleteImage(path):
+    s3 = boto3.resource('s3',aws_access_key_id=AWS_ACCESS_KEY_ID,
+         aws_secret_access_key= AWS_SECRET_ACCESS_KEY)
+    obj = s3.Object(S3_BUCKET, path)
+    r = obj.delete()
+    return r
