@@ -12,7 +12,7 @@ from django.views.decorators.http import require_http_methods
 
 from common.deco import user_logged_in
 from common.functool import checkParameter, getFirstProductImageId, getReqUser, pickUpAvailable
-from common.validation import deliveringAddrValidation, orderStatusValidation, pickedTradingMethodValidation, priceValidation, amountValidation, productIdValidation, nameValidation, phoneNumValidation
+from common.validation import deliveringAddrValidation, orderStatusValidation, pickedTradingMethodValidation, postageValidation, priceValidation, amountValidation, productIdValidation, nameValidation, phoneNumValidation
 
 # Create your views here.
 @require_http_methods(['POST'])
@@ -198,6 +198,28 @@ def editOrderStatus(request,id):
     
     return resBadRequest("User is not allowed to change order's status from %s to %s." % (Order.StatChoice(order.status).label,Order.StatChoice(status).label))
     
+
+@require_http_methods(['POST'])
+@user_logged_in
+def editOrderPostage(request, id): 
+    user = getReqUser(request)
+    order = get_object_or_404(Order, id=id)
+
+    if user.id != order.product.user.id or order.tradingMethod != Order.TradingMethod.DELI:
+        return resForbidden()
+
+    if not checkParameter(['postage'], request):
+        return resMissingPara(['postage'])
+    
+    data = json.loads(request.body)
+    postage = data['postage']
+
+    if not postageValidation(postage):
+        return resInvalidPara(['postage'])
+
+    order.postage = postage
+    order.save()
+    return resOk()
 
 @user_logged_in
 def sellingList(request):

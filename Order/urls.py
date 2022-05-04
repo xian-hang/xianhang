@@ -6,6 +6,7 @@ urlpatterns = [
     path('<int:id>/', views.getOrder),
     path('<int:id>/edit/', views.editOrder),
     path('<int:id>/edit/status/', views.editOrderStatus),
+    path('<int:id>/edit/postage/', views.editOrderPostage),
 
     path('selling/', views.sellingList),
     path('selling/status/', views.sellingListWithStatus),
