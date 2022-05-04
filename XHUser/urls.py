@@ -17,6 +17,7 @@ urlpatterns = [
     path('profile/', views.getProfile),
     path('<int:id>/', views.getUser),
     path('<int:id>/edit/status/', views.editStatus),
+    path('<int:id>/edit/rating/', views.editRating),
     path('edit/', views.editUser),
     path('delete/', views.deacUser),
     path('edit/password/', views.editPassword),

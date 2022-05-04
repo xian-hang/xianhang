@@ -12,7 +12,7 @@ from Product.models import Product
 from Followership.models import Followership
 from common.deco import admin_logged_in, check_logged_in, user_logged_in
 from common.functool import checkParameter, clearUser, getActiveUser, getReqUser, getFirstProductImageId
-from common.validation import isInt, isString, passwordValidation, studentIdValidation, userIdValidation, usernameValidation, keywordValidation
+from common.validation import isFloat, isInt, isString, passwordValidation, studentIdValidation, userIdValidation, usernameValidation, keywordValidation
 from common.restool import resBadRequest, resForbidden, resInvalidPara, resMissingPara, resNotFound, resOk, resReturn, resUnauthorized
 from common.mail import mailtest, sendResetPasswordMail, sendVerificationMail
 
@@ -249,7 +249,7 @@ def deacUser(request):
     return resOk()
 
 
-@require_http_methods(['DELETE'])
+@require_http_methods(['POST'])
 @admin_logged_in
 def editStatus(request, id):
     user = get_object_or_404(XHUser,id=id)
@@ -282,6 +282,26 @@ def editStatus(request, id):
     
     else:
         return resInvalidPara(['status'])
+
+
+@require_http_methods(['POST'])
+@admin_logged_in
+def editRating(request, id) :
+    user = get_object_or_404(XHUser, id=id)
+
+    if not checkParameter(['rating'],request):
+        return resMissingPara(['rating'])
+    
+    data = json.loads(request.body)
+    rating = data['rating']
+
+    if isFloat(rating):
+        user.rating = rating
+        user.save()
+        return resOk()
+    
+    return resBadRequest()
+
 
 @require_http_methods(['POST'])
 @check_logged_in
