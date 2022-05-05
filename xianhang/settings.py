@@ -30,9 +30,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-gu$3um!!l-1cw5nj2js4kj!6ha&hr^=0l4b!q9gb%w^pnqo#9v'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['192.168.0.117','localhost','xianhang.herokuapp.com','xianhang-web.herokuapp.com', '127.0.0.1', '139.162.90.35', 'r.idiv.cf','u.idiv.cf']
+ALLOWED_HOSTS = ['192.168.0.117','localhost','xianhang.herokuapp.com','xianhang-web.herokuapp.com', '127.0.0.1', '139.162.90.35', 'r.idiv.cf','u.idiv.cf', 'x.cirno.ga']
 
 # Application definition
 
