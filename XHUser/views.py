@@ -29,7 +29,7 @@ def sendEmailTest(request):
     return resOk()
 
 
-@require_http_methods(["POST"])
+@require_http_methods(['OPTIONS', "POST"])
 def userLogin(request):
     if not checkParameter(['studentId', 'password'], request):
         return resMissingPara(['studentId', 'password'])
@@ -72,7 +72,7 @@ def userLogin(request):
     return resUnauthorized()
 
 
-@require_http_methods(["POST"])
+@require_http_methods(['OPTIONS', "POST"])
 @check_logged_in
 def userLogout(request):
     user = getReqUser(request)
@@ -81,7 +81,7 @@ def userLogout(request):
     return resOk()
 
 
-@require_http_methods(["POST"])
+@require_http_methods(['OPTIONS', "POST"])
 def createUser(request):
     if not checkParameter(['username', 'studentId', 'password'], request):
         return resMissingPara(['username', 'studentId', 'password'])
@@ -111,7 +111,7 @@ def createUser(request):
     return resReturn({'userId' : user.id})
 
 
-@require_http_methods(["POST"])
+@require_http_methods(['OPTIONS', "POST"])
 def resentVerificationEmail(request):
     if not checkParameter(['studentId'], request):
         return resMissingPara(['studentId'])
@@ -142,7 +142,7 @@ def verifyEmail(request, key):
     return resOk("Email verified.")
 
 
-@require_http_methods(["POST"])
+@require_http_methods(['OPTIONS', "POST"])
 def forgotPassword(request):
     if not checkParameter(['studentId'],request):
         return resMissingPara(['studentId'])
@@ -162,7 +162,7 @@ def forgotPassword(request):
     return resOk("Email sent.")
 
 
-@require_http_methods(["POST"])
+@require_http_methods(['OPTIONS', "POST"])
 def resetPassword(request,key):
     token = get_object_or_404(Token,key=key)
     user = XHUser.objects.get(id=token.user.id)
@@ -212,7 +212,7 @@ def getProfile(request):
     return getUser(request, user.id)
 
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @check_logged_in
 def editUser(request):
     reqUser = getReqUser(request)
@@ -245,7 +245,7 @@ def editUser(request):
     return resOk()
 
 
-@require_http_methods(['DELETE'])
+@require_http_methods(['OPTIONS', 'DELETE'])
 @user_logged_in
 def deacUser(request):
     reqUser = getReqUser(request)
@@ -256,7 +256,7 @@ def deacUser(request):
     return resOk()
 
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @admin_logged_in
 def editStatus(request, id):
     user = get_object_or_404(XHUser,id=id)
@@ -291,7 +291,7 @@ def editStatus(request, id):
         return resInvalidPara(['status'])
 
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @admin_logged_in
 def editRating(request, id) :
     user = get_object_or_404(XHUser, id=id)
@@ -310,7 +310,7 @@ def editRating(request, id) :
     return resBadRequest()
 
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @check_logged_in
 def editPassword(request):
     reqUser = getReqUser(request)
@@ -334,7 +334,7 @@ def editPassword(request):
     return resOk()
     
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 def searchUser(request):
     if not checkParameter(['keyword'], request):
         return resMissingPara(['keyword'])
@@ -360,7 +360,7 @@ def userProduct(request, id):
     return resReturn({'result' : [{"product" : p.body(), 'image' : getFirstProductImageId(p)} for p in products]})
 
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @user_logged_in
 def createLike(request):
     if not checkParameter(['userId'],request):
@@ -379,7 +379,7 @@ def createLike(request):
         return resInvalidPara(['userId'])
 
 
-@require_http_methods(['DELETE'])
+@require_http_methods(['OPTIONS', 'DELETE'])
 @user_logged_in
 def deleteLike(request,id):
     like = get_object_or_404(Like, id=id)

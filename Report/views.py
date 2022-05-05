@@ -12,7 +12,7 @@ from common.restool import resBadRequest, resFile, resForbidden, resImage, resIn
 from common.validation import contentValidation, descriptionValidation, reportStatusValidation, reportingIdValidation, reportIdValidation
 
 # Create your views here.
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @user_logged_in
 def createReport(request):
     if not checkParameter(['description', 'reportingId'], request):
@@ -47,7 +47,7 @@ def getReport(request, id):
                         'image' : [i.id for i in images]})
 
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @admin_logged_in
 def editReport(request, id):
     report = get_object_or_404(Report, id=id)
@@ -69,7 +69,7 @@ def editReport(request, id):
     return resOk()
 
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @admin_logged_in
 def getReportList(request):
     if checkParameter(['status'], request):
@@ -87,7 +87,7 @@ def getReportList(request):
         return resReturn({'result' : [{'report' : r.body(), 'image' : getFirstReportImageId(r)} for r in reports]})
 
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @user_logged_in
 def createReportImage(request):
     try:
@@ -127,7 +127,7 @@ def getReportImageUrl(request,id):
     return resReturn({'url' : r})
 
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @admin_logged_in
 def createReportNotice(request):
     if not checkParameter(['reportId'], request):

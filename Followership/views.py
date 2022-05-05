@@ -11,7 +11,7 @@ from common.restool import resBadRequest, resForbidden, resInvalidPara, resMissi
 
 # Create your views here.
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @user_logged_in
 def createFollowership(request):
     if not checkParameter(['userId'], request):
@@ -32,7 +32,7 @@ def createFollowership(request):
         return resInvalidPara(["userId"])
     
 
-@require_http_methods(['DELETE'])
+@require_http_methods(['OPTIONS', 'DELETE'])
 @user_logged_in
 def deleteFollowership(request,id):
     user = getReqUser(request)

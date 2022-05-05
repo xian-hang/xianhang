@@ -16,7 +16,7 @@ from .form import ProductImageForm
 
 # Create your views here.
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @user_logged_in
 def createProduct(request):
     user = getReqUser(request)
@@ -62,7 +62,7 @@ def getProduct(request,id):
     return resReturn({'product' : product.body(), 'image' : [i.id for i in images], 'collectionId' : collectionId})
 
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @user_logged_in
 def editProduct(request,id):
     reqUser = getReqUser(request)
@@ -133,7 +133,7 @@ def editProduct(request,id):
     return resOk()
 
 
-@require_http_methods(['DELETE'])
+@require_http_methods(['OPTIONS', 'DELETE'])
 @user_logged_in
 def deleteProduct(request, id):
     reqUser = getReqUser(request)
@@ -146,7 +146,7 @@ def deleteProduct(request, id):
     return resOk()
 
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 def searchProduct(request):
     if not checkParameter(['keyword'], request):
         return resMissingPara(['keyword'])
@@ -171,7 +171,7 @@ def allProduct(request):
         products -= set(Product.objects.filter(user=user))
     return resReturn({'result' : [{'product' : p.body(), 'image' : getFirstProductImageId(p)} for p in products]})
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @user_logged_in
 def createProductImage(request):
     user = getReqUser(request)
@@ -209,7 +209,7 @@ def getProductImage(request,id):
     return resImage(r,image.ext)
 
 
-@require_http_methods(['DELETE'])
+@require_http_methods(['OPTIONS', 'DELETE'])
 @user_logged_in
 def deleteProductImage(request,id):
     image = get_object_or_404(ProductImage,id=id)

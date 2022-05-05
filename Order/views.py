@@ -15,7 +15,7 @@ from common.functool import by_date, checkParameter, getFirstProductImageId, get
 from common.validation import deliveringAddrValidation, orderStatusValidation, pickedTradingMethodValidation, postageValidation, priceValidation, amountValidation, productIdValidation, nameValidation, phoneNumValidation
 
 # Create your views here.
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @user_logged_in
 def createOrder(request):
     if not checkParameter(['price', 'amount', 'productId', 'name', 'phoneNum', 'tradingMethod'], request):
@@ -74,7 +74,7 @@ def getOrder(request,id):
     return resReturn({'order' : order.body()})
 
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @user_logged_in
 def editOrder(request,id):
     order = get_object_or_404(Order, id=id)
@@ -139,7 +139,7 @@ def editOrder(request,id):
     return resOk()
 
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @user_logged_in
 def editOrderStatus(request,id):
     order = get_object_or_404(Order, id=id)
@@ -199,7 +199,7 @@ def editOrderStatus(request,id):
     return resBadRequest("User is not allowed to change order's status from %s to %s." % (Order.StatChoice(order.status).label,Order.StatChoice(status).label))
     
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @user_logged_in
 def editOrderPostage(request, id): 
     user = getReqUser(request)
@@ -233,7 +233,7 @@ def sellingList(request):
     return resReturn({"result" : [{'order' : o.body(), 'image' : getFirstProductImageId(o.product)} for o in orders]})
 
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @user_logged_in
 def sellingListWithStatus(request):
     if not checkParameter(['status'],request):
@@ -263,7 +263,7 @@ def buyingList(request):
     return resReturn({"result" : [{'order' : o.body(), 'image' : getFirstProductImageId(o.product)} for o in orders]})
 
 
-@require_http_methods(['POST'])
+@require_http_methods(['OPTIONS', 'POST'])
 @user_logged_in
 def buyingListWithStatus(request):
     if not checkParameter(['status'],request):
