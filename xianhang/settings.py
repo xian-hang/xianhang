@@ -102,8 +102,8 @@ DATABASES = {
         'NAME': 'xianhang',
         'USER': 'xhadmin',
         'PASSWORD': 'XianHang_123',
-        'HOST': 'localhost',
-        'PORT': 3306,
+        # 'HOST': 'localhost',
+        # 'PORT': 3306,
     }
 }
 
