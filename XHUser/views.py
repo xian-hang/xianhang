@@ -345,8 +345,8 @@ def searchUser(request):
     if not keywordValidation(keyword):
         return resInvalidPara(["keyword"])
 
-    users = set(XHUser.objects.filter(username__contains=keyword))
-    users |= set(XHUser.objects.filter(studentId__contains=keyword))
+    users = set(XHUser.objects.filter(username__contains=keyword, role=XHUser.RoleChoice.USER, status__in=[XHUser.StatChoice.VER,XHUser.StatChoice.RESTRT]))
+    users |= set(XHUser.objects.filter(studentId__contains=keyword, role=XHUser.RoleChoice.USER, status__in=[XHUser.StatChoice.VER,XHUser.StatChoice.RESTRT]))
 
     return resReturn({"user" : [u.body() for u in users]})
 
