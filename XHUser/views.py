@@ -106,7 +106,7 @@ def createUser(request):
     user.save()
     # token = Token.objects.create(user=user)
 
-    sendVerificationMail(user.id)
+    # sendVerificationMail(user.id)
 
     return resReturn({'userId' : user.id})
 
