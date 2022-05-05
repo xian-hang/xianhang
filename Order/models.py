@@ -23,6 +23,7 @@ class Order(models.Model):
     status = models.IntegerField(choices=StatChoice.choices, default=0)
     user = models.ForeignKey(XHUser, on_delete=models.SET_NULL, null=True)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    createdAt = models.DateTimeField(auto_now_add=True) 
 
     name = models.CharField(max_length=150, null=False, blank=False)
     phoneNum = models.CharField(max_length=11, null=False, blank=False)
