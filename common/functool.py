@@ -1,3 +1,4 @@
+from gc import collect
 from itertools import islice
 import json
 from logging import raiseExceptions
@@ -6,6 +7,7 @@ from Product.models import Product, ProductImage
 from Order.models import Order
 from Report.models import ReportImage
 from Followership.models import Followership
+from Collection.models import Collection
 from rest_framework.authtoken.models import Token
 from django.core.exceptions import BadRequest, PermissionDenied, ObjectDoesNotExist
 
@@ -115,8 +117,12 @@ def clearUser(user):
         f.delete()
 
     followeds = Followership.objects.filter(following=user)
-    for f in followings:
+    for f in followeds:
         f.delete()
+
+    collections = Collection.objects.filter(user=user)
+    for c in collections:
+        c.delete()
     
 def getFirstProductImageId(product):
     if ProductImage.objects.filter(product=product).exists():
