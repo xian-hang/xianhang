@@ -29,7 +29,7 @@ def sendVerificationMail(userId):
         send_mail(
             '[Xian Hang] Verify your email address',  # subject
             # 'Hi, %s! \n\n Thanks for joining us ! Click here to confirm your email >> %suser/%s/verify/' % (user.username, BASE_URL, token.key),  # message
-            'Hi, %s! \n\n Thanks for joining us ! Click here to confirm your email >> %suser/%s/verify/' % (REACT_URL, token.key),  # message
+            'Hi, %s! \n\n Thanks for joining us ! Click here to confirm your email >> %suser/%s/verify/' % (user.username, REACT_URL, token.key),  # message
             EMAIL_HOST_USER,  # from email
             [user.studentId + '@buaa.edu.cn'],  # to email
         )
@@ -45,12 +45,12 @@ def sendResetPasswordMail(userId):
             Token.objects.get(user=user).delete()
         
         token = Token.objects.create(user=user)
-        
+
 
         send_mail(
             '[Xian Hang] Reset Password',  # subject
             # 'Hi, %s! \n\n Forgot your password ? Click here to reset your password >> %suser/%s/reset/password/' % (user.username, BASE_URL, token.key),  # message
-            'Hi, %s! \n\n Forgot your password ? Click here to reset your password >> %suser/%s/reset/password/' % (REACT_URL, token.key),  # message
+            'Hi, %s! \n\n Forgot your password ? Click here to reset your password >> %suser/%s/reset/password/' % (user.username, REACT_URL, token.key),  # message
             EMAIL_HOST_USER,  # from email
             [user.studentId + '@buaa.edu.cn'],  # to email
         )
