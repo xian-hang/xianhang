@@ -45,6 +45,7 @@ def sendResetPasswordMail(userId):
             Token.objects.get(user=user).delete()
         
         token = Token.objects.create(user=user)
+        
 
         send_mail(
             '[Xian Hang] Reset Password',  # subject
