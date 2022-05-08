@@ -4,6 +4,7 @@ from xianhang.settings import EMAIL_HOST_USER, BASE_URL
 from django.core.exceptions import BadRequest
 from rest_framework.authtoken.models import Token
 
+REACT_URL = "http://localhost:3000/"
 def mailtest():
     try:
         send_mail(
@@ -27,7 +28,8 @@ def sendVerificationMail(userId):
 
         send_mail(
             '[Xian Hang] Verify your email address',  # subject
-            'Hi, %s! \n\n Thanks for joining us ! Click here to confirm your email >> %suser/%s/verify/' % (user.username, BASE_URL, token.key),  # message
+            # 'Hi, %s! \n\n Thanks for joining us ! Click here to confirm your email >> %suser/%s/verify/' % (user.username, BASE_URL, token.key),  # message
+            'Hi, %s! \n\n Thanks for joining us ! Click here to confirm your email >> %suser/%s/verify/' % (REACT_URL, token.key),  # message
             EMAIL_HOST_USER,  # from email
             [user.studentId + '@buaa.edu.cn'],  # to email
         )
@@ -46,7 +48,8 @@ def sendResetPasswordMail(userId):
 
         send_mail(
             '[Xian Hang] Reset Password',  # subject
-            'Hi, %s! \n\n Forgot your password ? Click here to reset your password >> %suser/%s/reset/password/' % (user.username, BASE_URL, token.key),  # message
+            # 'Hi, %s! \n\n Forgot your password ? Click here to reset your password >> %suser/%s/reset/password/' % (user.username, BASE_URL, token.key),  # message
+            'Hi, %s! \n\n Forgot your password ? Click here to reset your password >> %suser/%s/reset/password/' % (REACT_URL, token.key),  # message
             EMAIL_HOST_USER,  # from email
             [user.studentId + '@buaa.edu.cn'],  # to email
         )
