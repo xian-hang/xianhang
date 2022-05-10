@@ -345,8 +345,10 @@ def searchUser(request):
     if not keywordValidation(keyword):
         return resInvalidPara(["keyword"])
 
-    users = set(XHUser.objects.filter(username__contains=keyword, role=XHUser.RoleChoice.USER, status__in=[XHUser.StatChoice.VER,XHUser.StatChoice.RESTRT]))
-    users |= set(XHUser.objects.filter(studentId__contains=keyword, role=XHUser.RoleChoice.USER, status__in=[XHUser.StatChoice.VER,XHUser.StatChoice.RESTRT]))
+    users = set(XHUser.objects.filter(username__contains=keyword, role=XHUser.RoleChoice.USER, status__in=[XHUser.StatChoice.VER, XHUser.StatChoice.RESTRT]))
+    users |= set(XHUser.objects.filter(studentId__contains=keyword, role=XHUser.RoleChoice.USER, status__in=[XHUser.StatChoice.VER, XHUser.StatChoice.RESTRT]))
+    if getReqUser(request) is not None:
+        users -= {getReqUser(request)}
 
     return resReturn({"user" : [u.body() for u in users]})
 
