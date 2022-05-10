@@ -162,6 +162,6 @@ def getReportNoticeList(request):
     reports = set(Report.objects.filter(user=user))
     reports |= set(Report.objects.filter(reporting=user, status=Report.StatChoice.APP))
 
-    notices = ReportNotice.objects.filter(report__in=reports)
+    notices = ReportNotice.objects.filter(report__in=reports).order_by('-id')
     return resReturn({'notice' : [ { **n.body(), 'reporting' : n.report.reporting.username} for n in notices]})
 
