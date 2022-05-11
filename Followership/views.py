@@ -21,7 +21,7 @@ def createFollowership(request):
     userId = data['userId']
     user = getReqUser(request)
 
-    if userIdValidation(userId):
+    if not userIdValidation(userId):
         return resInvalidPara(["userId"])
     if user.id == userId:
         return resForbidden("不可自己关注自己")
