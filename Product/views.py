@@ -10,7 +10,7 @@ from django.views.decorators.http import require_http_methods
 from common.deco import check_logged_in, user_logged_in
 from common.functool import checkParameter, deleteImage, getFirstProductImageId, getImage,getReqUser, pickUpAvailable, uploadImage
 from common.validation import descriptionValidation, keywordValidation, nameValidation, pickUpLocValidation, productIdValidation, stockValidation, priceValidation, tradingMethodValidation
-from common.restool import resBadRequest, resFile, resForbidden, resImage, resInvalidPara, resOk, resMissingPara, resReturn
+from common.restool import resBadRequest, resFile, resForbidden, resImage, resInvalidPara, resNotFound, resOk, resMissingPara, resReturn, resUnauthorized
 
 from .form import ProductImageForm
 
@@ -69,7 +69,7 @@ def editProduct(request,id):
     product = get_object_or_404(Product, id=id)
 
     if reqUser.id != product.user.id:
-        return resForbidden()
+        return resForbidden("只有商家可以修改商品")
 
     if not request.body:
         return resBadRequest("Empty parameter.")
@@ -140,7 +140,7 @@ def deleteProduct(request, id):
     product = get_object_or_404(Product, id=id)
 
     if reqUser.id != product.user.id:
-        return resForbidden()
+        return resForbidden("只有商家可以删除商品")
 
     images = ProductImage.objects.filter(product=product)
     for i in images:
@@ -181,8 +181,8 @@ def allProduct(request):
 def createProductImage(request):
     user = getReqUser(request)
 
-    if user.status == XHUser.StatChoice.RESTRT:
-        return resForbidden("User is restricted")
+    if user.status != XHUser.StatChoice.VER:
+        return resForbidden("用户无法售卖商品")
 
     try:
         productId = int(request.POST.get('productId'))
@@ -194,7 +194,7 @@ def createProductImage(request):
 
     product = Product.objects.get(id=productId)
     if user.id != product.user.id:
-        return resForbidden("User is not allowed to create image for this product.")
+        return resForbidden("商家才能上传商品图像")
 
     form = ProductImageForm(request.POST, request.FILES)
     if not form.is_valid():
@@ -232,6 +232,9 @@ def deleteProductImage(request,id):
 @user_logged_in
 def getFeed(request):
     user = getReqUser(request)
+    if user is None:
+        return resUnauthorized("用户未登录")
+
     followingId = user.creatingFollowershipUser.values_list('following__id')
     users = XHUser.objects.filter(id__in=followingId)
     products = Product.objects.filter(user__in=users).exclude(stock=0)

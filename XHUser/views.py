@@ -39,12 +39,12 @@ def userLogin(request):
     password = data['password']
 
     if not studentIdValidation(studentId) or not isString(password):
-        return resUnauthorized()
+        return resUnauthorized("输入格式不正确")
 
     try:
         user = XHUser.objects.get(studentId=studentId)
     except:
-        return resUnauthorized()
+        return resUnauthorized("学号不存在")
 
     if user.role == XHUser.RoleChoice.ADMIN:
         if user.check_password(data['password']):
@@ -55,6 +55,8 @@ def userLogin(request):
                 'token': token.key,
                 'id': user.id
             })
+        else:
+            return resUnauthorized("密码错误")
     elif user.status in [XHUser.StatChoice.VER, XHUser.StatChoice.RESTRT]:
         if user.check_password(password):
             login(request,user)
@@ -64,12 +66,14 @@ def userLogin(request):
                 'token': token.key,
                 'id': user.id
             })
+        else:
+            return resUnauthorized("密码错误")
     elif user.status == XHUser.StatChoice.DEAC:
-        return resForbidden()
+        return resForbidden("用户已停用账户")
     elif user.status == XHUser.StatChoice.UNVER:
-        return resBadRequest()
+        return resBadRequest("用户还未验证")
 
-    return resUnauthorized()
+    return resUnauthorized("登录失败")
 
 
 @require_http_methods(['OPTIONS', "POST"])
@@ -95,10 +99,10 @@ def createUser(request):
         return resInvalidPara(["username", "studentId", "password"])
 
     if XHUser.objects.filter(studentId=studentId).exists():
-        return resForbidden("Given student id exists.")
+        return resForbidden("学号已被注册")
     
     if XHUser.objects.filter(username=username).exists():
-        return resForbidden("Given username exists.")
+        return resForbidden("用户名已被其他用户使用")
 
     user = XHUser.objects.create(username=username,
                                  studentId=studentId)
@@ -124,7 +128,7 @@ def resentVerificationEmail(request):
 
     user = get_object_or_404(XHUser, studentId=studentId)
     if user.status != XHUser.StatChoice.UNVER:
-        return resBadRequest("User's email is verified.")
+        return resBadRequest("该用户已验证")
     
     sendVerificationMail(user.id)
     return resOk()
@@ -134,7 +138,7 @@ def verifyEmail(request, key):
     token = get_object_or_404(Token,key=key)
     user = XHUser.objects.get(id=token.user.id)
     if user.status != XHUser.StatChoice.UNVER:
-        return resForbidden()
+        return resForbidden("用户已验证")
     user.status = XHUser.StatChoice.VER
     user.save()
 
@@ -155,11 +159,11 @@ def forgotPassword(request):
 
     user = XHUser.objects.get(studentId=studentId)
     if user.status in [XHUser.StatChoice.UNVER, XHUser.StatChoice.DEAC]:
-        return resForbidden("User's account is not active.")
+        return resForbidden("该用户并未活跃用户")
     
     sendResetPasswordMail(user.id)
     
-    return resOk("Email sent.")
+    return resOk("请到 {}@buaa.edu.cn 更换密码".format(studentId))
 
 
 @require_http_methods(['OPTIONS', "POST"])
@@ -186,7 +190,7 @@ def resetPassword(request,key):
 def getUser(request, id):
     user = getActiveUser(id=id)
     if user is None:
-        return resNotFound()
+        return resNotFound("用户不存在或已注销")
 
     likeId = None
     followershipId = None
@@ -222,13 +226,13 @@ def editUser(request):
 
     data = json.loads(request.body)
     # updated = {}
-        
+
     if "username" in data:
         username = data['username']
         if not usernameValidation(username):
             return resInvalidPara(["username"])
         elif username != reqUser.username and XHUser.objects.filter(username = username).exists():
-            return resBadRequest('Username duplicated')
+            return resBadRequest('用户名已被其他用户使用')
         else:
             reqUser.username = username
             # updated = {**updated, 'username_updated': username}
@@ -262,7 +266,7 @@ def editStatus(request, id):
     user = get_object_or_404(XHUser,id=id)
 
     if user.status == XHUser.StatChoice.DEAC:
-        return resBadRequest("User is deactivated.")
+        return resBadRequest("用户并不活跃")
 
     if not checkParameter(['status'],request):
         return resMissingPara(['status'])
@@ -307,7 +311,7 @@ def editRating(request, id) :
         user.save()
         return resOk()
     
-    return resBadRequest()
+    return resBadRequest("Bad Request")
 
 
 @require_http_methods(['OPTIONS', 'POST'])
@@ -322,11 +326,11 @@ def editPassword(request):
     password = data['password']
     newPassword = data['newPassword']
 
-    if not isString(password) or not reqUser.check_password(password):
-        return resForbidden()
-
     if not passwordValidation(newPassword):
-        return resBadRequest()
+        return resBadRequest("密码长度需大于等于 8")
+
+    if not reqUser.check_password(password):
+        return resForbidden("原密码不正确")
 
     reqUser.set_password(newPassword)
     reqUser.save()
@@ -388,7 +392,7 @@ def deleteLike(request,id):
     reqUser = getReqUser(request)
 
     if like.user.id != reqUser.id:
-        return resForbidden()
+        return resForbidden("取消赞失败")
 
     like.delete()
     return resOk()

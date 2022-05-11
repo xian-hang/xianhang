@@ -6,7 +6,7 @@ from math import prod
 from django.shortcuts import render, get_object_or_404
 from Product.models import Product
 
-from common.restool import resBadRequest, resForbidden, resInvalidPara, resMissingPara, resOk, resReturn
+from common.restool import resBadRequest, resForbidden, resInvalidPara, resMissingPara, resOk, resReturn, resUnauthorized
 from .models import Order
 from django.views.decorators.http import require_http_methods
 
@@ -36,14 +36,14 @@ def createOrder(request):
     user = getReqUser(request)
     product = Product.objects.get(id=productId)
     if user.id == product.user.id:
-        return resBadRequest("Product belongs to user.")
+        return resBadRequest("用户不可以买自己售卖的商品")
     
     if amount > product.stock:
-        return resBadRequest("Purchase amount exceeds stock no.")
+        return resBadRequest("购买数量不可大于库存量")
 
     if tradingMethod == Order.TradingMethod.PICKUP:
         if not pickUpAvailable(product.tradingMethod):
-            return resForbidden("Product is not allowed for pick up.")
+            return resForbidden("商品不可自取")
 
         order = Order.objects.create(price=price, postage=0, amount=amount, product=product, user=user, name=name, phoneNum=phoneNum, tradingMethod=tradingMethod)
         product.stock -= amount
@@ -68,8 +68,11 @@ def getOrder(request,id):
     order = get_object_or_404(Order, id=id)
     user = getReqUser(request)
 
+    if user is None:
+        return resUnauthorized("用户未登录")
+
     if user.id != order.user.id and user.id != order.product.user.id:
-        return resForbidden()
+        return resForbidden("该订单与您不相关")
 
     return resReturn({'order' : order.body()})
 
@@ -87,7 +90,7 @@ def editOrder(request,id):
         return resBadRequest("Empty parameter.")
 
     if order.status not in [Order.StatChoice.UNPAID, Order.StatChoice.PAID]:
-        return resForbidden("Order is not allowed to be modified anymore.")
+        return resForbidden("订单已不允许更改")
 
     data = json.loads(request.body)
     # updated = {}
@@ -116,7 +119,7 @@ def editOrder(request,id):
 
         if tradingMethod == Order.TradingMethod.PICKUP:
             if not pickUpAvailable(order.product.tradingMethod):
-                return resForbidden("Product is not allowed for pick up.")
+                return resForbidden("该商品不可自取")
 
             order.tradingMethod = tradingMethod
             order.deliveringAddr = None
@@ -157,7 +160,7 @@ def editOrderStatus(request,id):
         if status == Order.StatChoice.PAID:
             if order.status == Order.StatChoice.UNPAID:
                 if order.tradingMethod == order.TradingMethod.DELI and order.postage is None:
-                    return resBadRequest("Postage is not confirmed yet.")
+                    return resBadRequest("邮费还未确认")
             
                 order.status = status
                 if order.tradingMethod == order.TradingMethod.PICKUP:
@@ -205,8 +208,11 @@ def editOrderPostage(request, id):
     user = getReqUser(request)
     order = get_object_or_404(Order, id=id)
 
+    if user is None:
+        return resUnauthorized("用户未登录")
+
     if user.id != order.product.user.id or order.tradingMethod != Order.TradingMethod.DELI or order.postage != None:
-        return resForbidden()
+        return resForbidden("只有商家可以设置邮费")
 
     if not checkParameter(['postage'], request):
         return resMissingPara(['postage'])
@@ -224,6 +230,8 @@ def editOrderPostage(request, id):
 @user_logged_in
 def sellingList(request):
     user = getReqUser(request)
+    if user is None:
+        return resUnauthorized("用户未登录")
     products = user.product_set.all()
     orders = set()
     for p in products:
@@ -245,6 +253,8 @@ def sellingListWithStatus(request):
         return resInvalidPara(['status'])
 
     user = getReqUser(request)
+    if user is None:
+        return resUnauthorized("用户未登录")
     products = user.product_set.all()
     orders = set()
     for p in products:
@@ -257,6 +267,8 @@ def sellingListWithStatus(request):
 @user_logged_in
 def buyingList(request):
     user = getReqUser(request)
+    if user is None:
+        return resUnauthorized("用户未登录")
     orders = user.order_set.all()
 
     orders = sorted(orders, key=by_date, reverse=True)
@@ -275,6 +287,8 @@ def buyingListWithStatus(request):
         return resInvalidPara(['status'])
 
     user = getReqUser(request)
+    if user is None:
+        return resUnauthorized("用户未登录")
     orders = user.order_set.filter(status=status)
 
     orders = sorted(orders, key=by_date, reverse=True)
