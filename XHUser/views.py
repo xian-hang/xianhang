@@ -39,12 +39,12 @@ def userLogin(request):
     password = data['password']
 
     if not studentIdValidation(studentId) or not isString(password):
-        return resUnauthorized()
+        return resUnauthorized("输入格式不正确")
 
     try:
         user = XHUser.objects.get(studentId=studentId)
     except:
-        return resUnauthorized()
+        return resUnauthorized("学号不存在")
 
     if user.role == XHUser.RoleChoice.ADMIN:
         if user.check_password(data['password']):
@@ -69,11 +69,11 @@ def userLogin(request):
         else:
             return resUnauthorized("密码错误")
     elif user.status == XHUser.StatChoice.DEAC:
-        return resForbidden()
+        return resForbidden("用户已停用账户")
     elif user.status == XHUser.StatChoice.UNVER:
-        return resBadRequest()
+        return resBadRequest("用户还未验证")
 
-    return resUnauthorized()
+    return resUnauthorized("登录失败")
 
 
 @require_http_methods(['OPTIONS', "POST"])
