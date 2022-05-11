@@ -69,6 +69,9 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     'http://xianhang.ga', 
+    'https://xianhang.ga', 
+    'http://18.205.90.245', 
+    'https://18.205.90.245', 
 ]
 
 ROOT_URLCONF = 'xianhang.urls'
