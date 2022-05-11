@@ -58,8 +58,6 @@ def getProduct(request,id):
     user = getReqUser(request)
     if user is not None and Collection.objects.filter(product=product, user=user).exists():
         collectionId = Collection.objects.get(product=product, user=user).id
-    else:
-        return resNotFound("商品不存在")
     
     return resReturn({'product' : product.body(), 'image' : [i.id for i in images], 'collectionId' : collectionId})
 
