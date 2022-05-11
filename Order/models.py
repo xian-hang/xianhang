@@ -41,7 +41,7 @@ class Order(models.Model):
             'status' : self.status,
             'product' : self.product.body() if self.product else None,
             'pname' : self.pname,
-            'sellerId' : self.seller.id,
+            'sellerId' : self.seller.id if self.seller else None,
             'user' : self.user.id if self.user else None,
             'name' : self.name,
             'phoneNum' : self.phoneNum,
