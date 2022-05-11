@@ -45,7 +45,7 @@ def createOrder(request):
         if not pickUpAvailable(product.tradingMethod):
             return resForbidden("商品不可自取")
 
-        order = Order.objects.create(price=price, postage=0, amount=amount, product=product, user=user, name=name, phoneNum=phoneNum, tradingMethod=tradingMethod)
+        order = Order.objects.create(price=price, postage=0, amount=amount, product=product, user=user, name=name, phoneNum=phoneNum, tradingMethod=tradingMethod, pname=product.name, seller=product.user)
         product.stock -= amount
         product.save()
         return resReturn({'orderId' : order.id})
@@ -57,7 +57,7 @@ def createOrder(request):
         if not deliveringAddrValidation(addr):
             return resInvalidPara(['deliveringAddr'])
 
-        order = Order.objects.create(price=price, amount=amount, product=product, user=user, name=name, phoneNum=phoneNum, tradingMethod=tradingMethod, deliveringAddr=addr, productName=product.name, seller=product.user)
+        order = Order.objects.create(price=price, amount=amount, product=product, user=user, name=name, phoneNum=phoneNum, tradingMethod=tradingMethod, deliveringAddr=addr, pname=product.name, seller=product.user)
         product.stock -= amount
         product.save()
         return resReturn({'orderId' : order.id})

@@ -23,7 +23,7 @@ class Order(models.Model):
     status = models.IntegerField(choices=StatChoice.choices, default=0)
     user = models.ForeignKey(XHUser, on_delete=models.SET_NULL, null=True, related_name="creatingOrderUser")
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
-    productName = models.CharField(max_length=150, null=True)
+    pname = models.CharField(max_length=150, null=True)
     seller = models.ForeignKey(XHUser, on_delete=models.CASCADE, null=True, related_name="seller")
     createdAt = models.DateTimeField(auto_now_add=True) 
 
@@ -40,8 +40,8 @@ class Order(models.Model):
             'amount' : self.amount,
             'status' : self.status,
             'product' : self.product.body() if self.product else None,
-            'productName' : self.productName,
-            'seller' : self.seller.id,
+            'pname' : self.pname,
+            'sellerId' : self.seller.id,
             'user' : self.user.id if self.user else None,
             'name' : self.name,
             'phoneNum' : self.phoneNum,
