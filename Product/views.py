@@ -142,6 +142,11 @@ def deleteProduct(request, id):
     if reqUser.id != product.user.id:
         return resForbidden()
 
+    images = ProductImage.objects.filter(product=product)
+    for i in images:
+        deleteImage(i.path)
+        i.delete()
+        
     product.delete()
     return resOk()
 
