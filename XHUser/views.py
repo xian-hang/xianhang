@@ -55,6 +55,8 @@ def userLogin(request):
                 'token': token.key,
                 'id': user.id
             })
+        else:
+            return resUnauthorized("密码错误")
     elif user.status in [XHUser.StatChoice.VER, XHUser.StatChoice.RESTRT]:
         if user.check_password(password):
             login(request,user)
@@ -64,6 +66,8 @@ def userLogin(request):
                 'token': token.key,
                 'id': user.id
             })
+        else:
+            return resUnauthorized("密码错误")
     elif user.status == XHUser.StatChoice.DEAC:
         return resForbidden()
     elif user.status == XHUser.StatChoice.UNVER:
