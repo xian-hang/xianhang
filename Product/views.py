@@ -146,7 +146,7 @@ def deleteProduct(request, id):
     for i in images:
         deleteImage(i.path)
         i.delete()
-        
+
     product.delete()
     return resOk()
 
@@ -234,5 +234,5 @@ def getFeed(request):
     user = getReqUser(request)
     followingId = user.creatingFollowershipUser.values_list('following__id')
     users = XHUser.objects.filter(id__in=followingId)
-    products = Product.objects.filter(user__in=users)
+    products = Product.objects.filter(user__in=users).exclude(stock=0)
     return resReturn({'result' : [{'product' : p.body(), 'image': getFirstProductImageId(p)} for p in products]})
