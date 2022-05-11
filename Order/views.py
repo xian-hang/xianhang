@@ -71,7 +71,7 @@ def getOrder(request,id):
     if user is None:
         return resUnauthorized("用户未登录")
 
-    if user.id != order.user.id and user.id != order.product.user.id:
+    if user.id != order.user.id and user.id != order.seller.id:
         return resForbidden("该订单与您不相关")
 
     return resReturn({'order' : order.body()})
@@ -167,7 +167,7 @@ def editOrderStatus(request,id):
                     order.status = order.StatChoice.SHP
                 order.save()
 
-                seller = order.product.user
+                seller = order.seller
                 seller.soldItem += order.amount
                 seller.save()
                 return resOk("Order's status is changed from %s to %s." % (Order.StatChoice.UNPAID.label,Order.StatChoice(order.status).label))
@@ -183,12 +183,13 @@ def editOrderStatus(request,id):
                 order.status = status
                 order.save()
                 
-                product = order.product
-                product.stock += order.amount
-                product.save()
+                if order.product is not None:
+                    product = order.product
+                    product.stock += order.amount
+                    product.save()
                 return resOk("Order's status is changed from %s to %s." % (Order.StatChoice.UNPAID.label,Order.StatChoice(order.status).label))
 
-    elif user.id == order.product.user.id:
+    elif user.id == order.seller.id:
         if status == Order.StatChoice.SHP:
             if order.status == Order.StatChoice.PAID:
                 order.status = status
