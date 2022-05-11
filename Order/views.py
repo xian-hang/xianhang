@@ -230,14 +230,7 @@ def editOrderPostage(request, id):
 @user_logged_in
 def sellingList(request):
     user = getReqUser(request)
-    if user is None:
-        return resUnauthorized("用户未登录")
-    products = user.product_set.all()
-    orders = set()
-    for p in products:
-        orders |= set(p.order_set.all())
-
-    orders = sorted(orders, key=by_date, reverse=True)
+    orders = Order.objects.filter(seller=user).order_by('-id')
     return resReturn({"result" : [{'order' : o.body(), 'image' : getFirstProductImageId(o.product)} for o in orders]})
 
 
@@ -253,25 +246,14 @@ def sellingListWithStatus(request):
         return resInvalidPara(['status'])
 
     user = getReqUser(request)
-    if user is None:
-        return resUnauthorized("用户未登录")
-    products = user.product_set.all()
-    orders = set()
-    for p in products:
-        orders |= set(p.order_set.filter(status=status))
-
-    orders = sorted(orders, key=by_date, reverse=True)
+    orders = Order.objects.filter(seller=user,status=status).order_by('-id')
     return resReturn({"result" : [{'order' : o.body(), 'image' : getFirstProductImageId(o.product)} for o in orders]})
 
 
 @user_logged_in
 def buyingList(request):
     user = getReqUser(request)
-    if user is None:
-        return resUnauthorized("用户未登录")
-    orders = user.order_set.all()
-
-    orders = sorted(orders, key=by_date, reverse=True)
+    orders = Order.objects.filter(user=user).order_by('-id')
     return resReturn({"result" : [{'order' : o.body(), 'image' : getFirstProductImageId(o.product)} for o in orders]})
 
 
@@ -287,9 +269,5 @@ def buyingListWithStatus(request):
         return resInvalidPara(['status'])
 
     user = getReqUser(request)
-    if user is None:
-        return resUnauthorized("用户未登录")
-    orders = user.order_set.filter(status=status)
-
-    orders = sorted(orders, key=by_date, reverse=True)
+    orders = Order.objects.filter(user=user,status=status).order_by('-id')
     return resReturn({"result" : [{'order' : o.body(), 'image' : getFirstProductImageId(o.product)} for o in orders]})
