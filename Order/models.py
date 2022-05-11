@@ -21,8 +21,10 @@ class Order(models.Model):
     postage = models.DecimalField(decimal_places=2, max_digits=10, default=None, null=True)
     amount = models.IntegerField(default=1)
     status = models.IntegerField(choices=StatChoice.choices, default=0)
-    user = models.ForeignKey(XHUser, on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(XHUser, on_delete=models.SET_NULL, null=True, related_name="creatingOrderUser")
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    productName = models.CharField(max_length=150, null=True)
+    seller = models.ForeignKey(XHUser, on_delete=models.CASCADE, null=True, related_name="seller")
     createdAt = models.DateTimeField(auto_now_add=True) 
 
     name = models.CharField(max_length=150, null=False, blank=False)
@@ -38,6 +40,8 @@ class Order(models.Model):
             'amount' : self.amount,
             'status' : self.status,
             'product' : self.product.body() if self.product else None,
+            'productName' : self.productName,
+            'seller' : self.seller.id,
             'user' : self.user.id if self.user else None,
             'name' : self.name,
             'phoneNum' : self.phoneNum,

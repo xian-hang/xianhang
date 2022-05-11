@@ -57,7 +57,7 @@ def createOrder(request):
         if not deliveringAddrValidation(addr):
             return resInvalidPara(['deliveringAddr'])
 
-        order = Order.objects.create(price=price, amount=amount, product=product, user=user, name=name, phoneNum=phoneNum, tradingMethod=tradingMethod, deliveringAddr=addr)
+        order = Order.objects.create(price=price, amount=amount, product=product, user=user, name=name, phoneNum=phoneNum, tradingMethod=tradingMethod, deliveringAddr=addr, productName=product.name, seller=product.user)
         product.stock -= amount
         product.save()
         return resReturn({'orderId' : order.id})
