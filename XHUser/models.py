@@ -24,7 +24,9 @@ class XHUser(User):
     rating = models.DecimalField(default=100, decimal_places=1, max_digits=4)
     status = models.IntegerField(default=StatChoice.UNVER,
                                  choices=StatChoice.choices)
-    introduction=models.CharField(default="这个人很懒，什么都没留下。", max_length=150)
+    introduction = models.CharField(default="这个人很懒，什么都没留下。", max_length=150)
+    forgotLimit = models.IntegerField(default=5)
+    verifyLimit = models.IntegerField(default=6)
 
     def __str__(self) -> str:
         return self.username
