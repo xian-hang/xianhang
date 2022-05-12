@@ -171,7 +171,7 @@ def searchProduct(request):
         collectionId = None
         if user is not None and Collection.objects.filter(product=p, user=user).exists():
             collectionId = Collection.objects.get(product=p, user=user).id
-        result += {'product': p.body(), 'image': getFirstProductImageId(p), 'collectionId': collectionId}
+        result.append({'product': p.body(), 'image': getFirstProductImageId(p), 'collectionId': collectionId})
 
     return resReturn({'result' : result})
 
@@ -186,7 +186,7 @@ def allProduct(request):
         collectionId = None
         if user is not None and Collection.objects.filter(product=p, user=user).exists():
             collectionId = Collection.objects.get(product=p, user=user).id
-        result += {'product': p.body(), 'image': getFirstProductImageId(p), 'collectionId': collectionId}
+        result.append({'product': p.body(), 'image': getFirstProductImageId(p), 'collectionId': collectionId})
 
     return resReturn({'result' : result})
 
@@ -258,6 +258,6 @@ def getFeed(request):
         collectionId = None
         if user is not None and Collection.objects.filter(product=p, user=user).exists():
             collectionId = Collection.objects.get(product=p, user=user).id
-        result += {'product': p.body(), 'image': getFirstProductImageId(p), 'collectionId': collectionId}
+        result.append({'product': p.body(), 'image': getFirstProductImageId(p), 'collectionId': collectionId})
 
     return resReturn({'result' : result})
