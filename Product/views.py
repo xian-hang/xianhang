@@ -166,15 +166,30 @@ def searchProduct(request):
     user = getReqUser(request)
     if user is not None:
         products -= set(Product.objects.filter(user=user))
+    result = []
+    for p in products:
+        collectionId = None
+        if user is not None and Collection.objects.filter(product=p, user=user).exists():
+            collectionId = Collection.objects.get(product=p, user=user).id
+        result += {'product': p.body(), 'image': getFirstProductImageId(p), 'collectionId': collectionId}
 
-    return resReturn({'result' : [{'product' : p.body(), 'image' : getFirstProductImageId(p)} for p in products]})
+    return resReturn({'result' : result})
+
 
 def allProduct(request):
     products = set(Product.objects.exclude(stock=0))
     user = getReqUser(request)
     if user is not None:
         products -= set(Product.objects.filter(user=user))
-    return resReturn({'result' : [{'product' : p.body(), 'image' : getFirstProductImageId(p)} for p in products]})
+    result = []
+    for p in products:
+        collectionId = None
+        if user is not None and Collection.objects.filter(product=p, user=user).exists():
+            collectionId = Collection.objects.get(product=p, user=user).id
+        result += {'product': p.body(), 'image': getFirstProductImageId(p), 'collectionId': collectionId}
+
+    return resReturn({'result' : result})
+
 
 @require_http_methods(['OPTIONS', 'POST'])
 @user_logged_in
@@ -238,4 +253,11 @@ def getFeed(request):
     followingId = user.creatingFollowershipUser.values_list('following__id')
     users = XHUser.objects.filter(id__in=followingId)
     products = Product.objects.filter(user__in=users).exclude(stock=0)
-    return resReturn({'result' : [{'product' : p.body(), 'image': getFirstProductImageId(p)} for p in products]})
+    result = []
+    for p in products:
+        collectionId = None
+        if user is not None and Collection.objects.filter(product=p, user=user).exists():
+            collectionId = Collection.objects.get(product=p, user=user).id
+        result += {'product': p.body(), 'image': getFirstProductImageId(p), 'collectionId': collectionId}
+
+    return resReturn({'result' : result})
