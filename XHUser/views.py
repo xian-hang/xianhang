@@ -61,6 +61,8 @@ def userLogin(request):
         if user.check_password(password):
             login(request,user)
             token, created = Token.objects.get_or_create(user=user)
+            user.forgotLimit = 5
+            user.save()
             return resReturn({
                 'role': user.role,
                 'token': token.key,
