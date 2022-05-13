@@ -220,7 +220,7 @@ def createProductImage(request):
     image.save()
 
     r = uploadImage(image.path, request.FILES['image'])
-    return resOk()
+    return resReturn({'imageId': image.id})
 
 
 def getProductImage(request,id):
