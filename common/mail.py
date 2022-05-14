@@ -10,7 +10,7 @@ def mailtest():
             '[Testing] Verify your email address for Xian Hang',  # subject
             'Thanks for joining us !',  # message
             EMAIL_HOST_USER,  # from email
-            ['xianhang2022@gmail.com'],  # to email
+            ['79066012@buaa.edu.cn'],  # to email
         )
     except Exception as e:
         print(e)
@@ -22,15 +22,16 @@ def sendVerificationMail(userId):
         user = XHUser.objects.get(id=userId)
         if Token.objects.filter(user=user).exists():
             Token.objects.get(user=user).delete()
-        
+
         token = Token.objects.create(user=user)
 
-        send_mail(
+        r = send_mail(
             '[Xian Hang] Verify your email address',  # subject
             'Hi, %s! \n\n Thanks for joining us ! Click here to confirm your email >> %s%s/verify/' % (user.username, BASE_URL, token.key),  # message
             EMAIL_HOST_USER,  # from email
             [user.studentId + '@buaa.edu.cn'],  # to email
         )
+        print('status', r)
     except Exception as e:
         print(e)
         raise BadRequest(message="Send mail failed")
@@ -41,16 +42,17 @@ def sendResetPasswordMail(userId):
         user = XHUser.objects.get(id=userId)
         if Token.objects.filter(user=user).exists():
             Token.objects.get(user=user).delete()
-        
+
         token = Token.objects.create(user=user)
 
-
-        send_mail(
+        r = send_mail(
             '[Xian Hang] Reset Password',  # subject
-            'Hi, %s! \n\n Forgot your password ? Click here to reset your password >> %s%s/reset/password/' % (user.username, BASE_URL, token.key),  # message
+            'Hi, %s! \n\n Forgot ? Why so noob ? >> %s%s/reset/password/' % (user.username, BASE_URL, token.key),  # message
             EMAIL_HOST_USER,  # from email
             [user.studentId + '@buaa.edu.cn'],  # to email
         )
+        print('status', r)
+
     except Exception as e:
         print(e)
         raise BadRequest(message="Send mail failed")
