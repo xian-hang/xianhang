@@ -42,8 +42,8 @@ def getReport(request, id):
     report = get_object_or_404(Report, id=id)
     images = ReportImage.objects.filter(report=report)
     return resReturn({'report' : report.body(), 
-                        'user' : getActiveUser(id=report.user.id).body() if getActiveUser(id=report.user.id) is not None else None, 
-                        'reporting' : getActiveUser(id=report.reporting.id).body() if getActiveUser(id=report.reporting.id) is not None else None,
+                        'user' : getActiveUser(id=report.user.id).body() if report.user is not None and getActiveUser(id=report.user.id) is not None else None, 
+                        'reporting' : getActiveUser(id=report.reporting.id).body() if report.reporting is not None and getActiveUser(id=report.reporting.id) is not None else None,
                         'image' : [i.id for i in images]})
 
 
