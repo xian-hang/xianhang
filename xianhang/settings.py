@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-gu$3um!!l-1cw5nj2js4kj!6ha&hr^=0l4b!q9gb%w^pnqo#9v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['18.205.90.245', 'xianhang.ga']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '18.205.90.245', 'xianhang.ga']
 
 # Application definition
 
@@ -69,10 +69,10 @@ MIDDLEWARE = [
 
 # CORS config
 CORS_ALLOWED_ORIGINS = [
-    'http://xianhang.ga', 
-    'https://xianhang.ga', 
-    'http://18.205.90.245', 
-    'https://18.205.90.245', 
+    'http://xianhang.ga',
+    'https://xianhang.ga',
+    'http://18.205.90.245',
+    'https://18.205.90.245',
 ]
 
 CORS_ALLOWED_METHODS = [

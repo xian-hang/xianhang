@@ -61,6 +61,8 @@ def userLogin(request):
         if user.check_password(password):
             login(request,user)
             token, created = Token.objects.get_or_create(user=user)
+            user.forgotLimit = 5
+            user.save()
             return resReturn({
                 'role': user.role,
                 'token': token.key,
@@ -129,8 +131,13 @@ def resentVerificationEmail(request):
     user = get_object_or_404(XHUser, studentId=studentId)
     if user.status != XHUser.StatChoice.UNVER:
         return resBadRequest("该用户已验证")
+
+    if user.verifyLimit <= 0:
+        return resForbidden("验证重发次数已用尽，请联络管理员")
     
+    user.verifyLimit -= 1
     sendVerificationMail(user.id)
+    user.save()
     return resOk()
 
 
@@ -160,8 +167,13 @@ def forgotPassword(request):
     user = XHUser.objects.get(studentId=studentId)
     if user.status in [XHUser.StatChoice.UNVER, XHUser.StatChoice.DEAC]:
         return resForbidden("该用户并未活跃用户")
+
+    if user.forgotLimit <= 0:
+        return resForbidden("无法发送重设密码邮件，请联络管理员")
     
+    user.forgotLimit -= 1
     sendResetPasswordMail(user.id)
+    user.save()
     
     return resOk("请到 {}@buaa.edu.cn 更换密码".format(studentId))
 
@@ -181,6 +193,7 @@ def resetPassword(request,key):
         return resInvalidPara(['newPassword'])
     
     user.set_password(newPassword)
+    user.forgotLimit = 5
     user.save()
     login(request, user)
     token.delete()

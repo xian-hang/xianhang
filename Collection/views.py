@@ -56,4 +56,4 @@ def collectionList(request):
     if user is None:
         return resUnauthorized("用户未登录")
     collections = Collection.objects.filter(user=user)
-    return resReturn({"result" : [{'product' : c.product.body(), 'image' : getFirstProductImageId(c.product)} for c in collections]})
+    return resReturn({"result" : [{'product' : c.product.body(), 'image' : getFirstProductImageId(c.product), 'collectionId': c.id} for c in collections]})
