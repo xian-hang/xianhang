@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'channels',
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
@@ -53,6 +54,7 @@ INSTALLED_APPS = [
     'Followership',
     'Order',
     'Report',
+    'Chat',
 ]
 
 MIDDLEWARE = [
@@ -117,6 +119,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'xianhang.wsgi.application'
+ASGI_APPLICATION = "xianhang.asgi.application"
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES' : (
