@@ -17,7 +17,7 @@ def isFloat(keyword) -> bool:
 
 # XHUser validation
 def usernameValidation(username) -> bool:
-    return isString(username) and len(username) >= 4
+    return isString(username) and len(username) >= 1
 
 def passwordValidation(password) -> bool:
     return isString(password) and len(password) >= 8
