@@ -50,6 +50,14 @@ def getReqUser(request) -> XHUser:
     else:
         return None
 
+def getUser(token=None, id=None) -> XHUser:
+    if token is not None:
+        token = Token.objects.get(key=token)
+        user = XHUser.objects.get(id=token.user.id)
+        return user
+    if id is not None:
+        return XHUser.objects.get(id=id)
+
 def getActiveUser(*args, **kwargs) -> XHUser:
     try:
         user = XHUser.objects.get(*args, **kwargs)
