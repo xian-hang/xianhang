@@ -99,7 +99,7 @@ class ChatConsumer(WebsocketConsumer):
                 self.channel_name
             )
         
-        Message.objects.create(content=data['message'], author= reqUser,chat=chat)
+        Message.objects.create(message=data['message'], author= reqUser,chat=chat)
         async_to_sync(self.channel_layer.group_send)(
             'chat_%s' % chat.id,
             {
