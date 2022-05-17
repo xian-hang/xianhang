@@ -54,7 +54,7 @@ def getChatList(request):
         messages = Message.objects.filter(chat=c).order_by('-timestamp')
         if len(messages):
             user = c.users.exclude(id=reqUser.id).first()
-            results += [{'chatId' : c.id, 'lastMessage' : messages[0].body(), 'user' : user.body()}]
+            results += [{'chatId' : c.id, 'lastMessage' : messages[0].body(), 'username' : user.username, 'userId' : user.id}]
     
     results.sort(key=messageTime)
     return resOk({'result' : results})

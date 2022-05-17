@@ -15,6 +15,7 @@ class Message(models.Model):
     def body(self):
         return {
             'chatId' : self.chat.id,
+            'authorId' : self.author.id,
             'author' : self.author.username,
             'message' : self.message,
             'time' : self.timestamp.isoformat(),
