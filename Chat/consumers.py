@@ -66,9 +66,9 @@ class ChatConsumer(WebsocketConsumer):
         user = getUser(id=userId)
         reqUser = getReqUser(self.scope)
         chat = getChat(user, reqUser)
-
-        messages = Message.objects.filter(chat=chat)
-        self.send(text_data=json.dumps({'message' : [m.body() for m in messages]}))
+        if chat is not None:
+            messages = Message.objects.filter(chat=chat)
+            self.send(text_data=json.dumps({'message' : [m.body() for m in messages]}))
 
     # command type
     commandTypes = {
@@ -98,7 +98,7 @@ class ChatConsumer(WebsocketConsumer):
 
     def disconnect(self, test_code):
         # print('disconnect : ',self.scope)
-        self.send(text_data=json.dumps({'message' : 'disconnect successfully'}))
+        # self.send(text_data=json.dumps({'message' : 'disconnect successfully'}))
 
         async_to_sync(self.channel_layer.group_discard)(
             'channel_%s' % reqUser.id,
@@ -109,7 +109,7 @@ class ChatConsumer(WebsocketConsumer):
         if reqUser is not None:
             chats = reqUser.chat_set.all()
             for c in chats:
-                async_to_sync(self.channel_layer.group_add)(
+                async_to_sync(self.channel_layer.group_discard)(
                     'chat_%s' % c.id,
                     self.channel_name
                 )
