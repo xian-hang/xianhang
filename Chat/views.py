@@ -20,10 +20,8 @@ def loginTest(request):
 def index(request):
     return render(request, 'chat/index.html', {})
 
-def room(request, userId):
-    return render(request, 'chat/room.html', {
-        'userId': userId
-    })
+def room(request):
+    return render(request, 'chat/room.html')
 
 @user_logged_in
 def getChat(request, userId):

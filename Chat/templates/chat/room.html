@@ -8,9 +8,9 @@
     <input id="chat-message-rec" type="text" size="100"><br>
     <input id="chat-message-input" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Send">
-    {{ userId|json_script:"userId" }}
+    {% comment %} {{ userId|json_script:"userId" }} {% endcomment %}
     <script>
-        const roomName = JSON.parse(document.getElementById('userId').textContent);
+        {% comment %} const roomName = JSON.parse(document.getElementById('userId').textContent); {% endcomment %}
         document.authorzation = 'X-Authorization=' + "token hehe" + '; path=/';
 
         const chatSocket = new WebSocket(
