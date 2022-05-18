@@ -57,7 +57,7 @@ class ChatConsumer(WebsocketConsumer):
             'chat_%s' % chat.id,
             {
                 'type' : 'sendMessage',
-                **message.body(),
+                'message' : message.body(),
             }
         )
 
