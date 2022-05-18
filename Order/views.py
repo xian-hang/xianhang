@@ -169,6 +169,7 @@ def editOrderStatus(request,id):
 
                 seller = order.seller
                 seller.soldItem += order.amount
+                seller.totalSales += order.price
                 seller.save()
                 return resOk("Order's status is changed from %s to %s." % (Order.StatChoice.UNPAID.label,Order.StatChoice(order.status).label))
 

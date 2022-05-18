@@ -21,6 +21,7 @@ class XHUser(User):
     role = models.IntegerField(default=RoleChoice.USER,
                                choices=RoleChoice.choices)
     soldItem = models.IntegerField(default=0)
+    totalSales = models.DecimalField(default=0, decimal_places=2, max_digits=20)
     rating = models.DecimalField(default=100, decimal_places=1, max_digits=4)
     status = models.IntegerField(default=StatChoice.UNVER,
                                  choices=StatChoice.choices)
@@ -39,6 +40,7 @@ class XHUser(User):
             'introduction' : self.introduction,
             'role': self.role,
             'soldItem': self.soldItem,
+            'totalSales' : self.totalSales,
             'rating': self.rating,
             'status': self.status,
         }
