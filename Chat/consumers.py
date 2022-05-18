@@ -68,7 +68,7 @@ class ChatConsumer(WebsocketConsumer):
         chat = getChat(user, reqUser)
         if chat is not None:
             messages = Message.objects.filter(chat=chat)
-            self.send(text_data=json.dumps({'message' : [m.body() for m in messages]}))
+            self.send(text_data='0' + json.dumps({'message' : [m.body() for m in messages]}))
 
     # command type
     commandTypes = {
@@ -133,4 +133,4 @@ class ChatConsumer(WebsocketConsumer):
 
     def sendMessage(self, data):
         message = data['message']
-        self.send(text_data=json.dumps(message))
+        self.send(text_data='1' + json.dumps(message))
