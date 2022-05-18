@@ -77,7 +77,7 @@ class ChatConsumer(WebsocketConsumer):
     }
 
     def connect(self):
-        print('connect : ', self.scope)
+        # print('connect : ', self.scope)
         reqUser = getReqUser(self.scope)
         if reqUser is not None:
             async_to_sync(self.channel_layer.group_add)(
@@ -96,7 +96,7 @@ class ChatConsumer(WebsocketConsumer):
             # self.send(text_data=json.dumps({'message' : 'connect successfully'}))
 
     def disconnect(self, test_code):
-        print('disconnect : ',self.scope)
+        # print('disconnect : ',self.scope)
         # self.send(text_data=json.dumps({'message' : 'disconnect successfully'}))
 
         reqUser = getReqUser(self.scope)
@@ -115,7 +115,7 @@ class ChatConsumer(WebsocketConsumer):
                 )
 
     def receive(self, text_data=None):
-        print('receive : ', self.scope)
+        # print('receive : ', self.scope)
         data = json.loads(text_data)
         self.commandTypes[data['type']](self, data)
 
