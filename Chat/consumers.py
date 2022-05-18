@@ -10,7 +10,7 @@ from common.functool import getUser
 def getToken(scope):
     headers = dict(scope['headers'])
     if b'authorization' in headers:
-        return headers[b'authorization'].split()[1]
+        return headers[b'authorization'].split()[1].decode('ascii')
 
 def getReqUser(scope):
     token = getToken(scope)
