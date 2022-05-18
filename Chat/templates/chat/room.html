@@ -42,7 +42,7 @@
             const receiver = messageInputRec.value
             chatSocket.send(JSON.stringify({
                 'type' : 'newMessage',
-                'receiver' : receiver,
+                'userId' : receiver,
                 'message': message
             }), );
             messageInputDom.value = '';

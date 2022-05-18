@@ -6,5 +6,5 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('login/', views.loginTest),
     path('list/', views.getChatList),
-    # path('<str:userId>/', views.room),
+    path('room/', views.room),
 ]
