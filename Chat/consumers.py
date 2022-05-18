@@ -80,7 +80,6 @@ class ChatConsumer(WebsocketConsumer):
         print('connect : ', self.scope)
         reqUser = getReqUser(self.scope)
         if reqUser is not None:
-
             async_to_sync(self.channel_layer.group_add)(
                 'channel_%s' % reqUser.id,
                 self.channel_name
@@ -100,13 +99,14 @@ class ChatConsumer(WebsocketConsumer):
         print('disconnect : ',self.scope)
         # self.send(text_data=json.dumps({'message' : 'disconnect successfully'}))
 
-        async_to_sync(self.channel_layer.group_discard)(
-            'channel_%s' % reqUser.id,
-            self.channel_name
-        )
-
         reqUser = getReqUser(self.scope)
         if reqUser is not None:
+
+            async_to_sync(self.channel_layer.group_discard)(
+                'channel_%s' % reqUser.id,
+                self.channel_name
+            )
+
             chats = reqUser.chat_set.all()
             for c in chats:
                 async_to_sync(self.channel_layer.group_discard)(
