@@ -11,6 +11,7 @@ class Message(models.Model):
     author = models.ForeignKey(XHUser, on_delete=models.CASCADE)
     message = models.CharField(max_length=150)
     timestamp = models.DateTimeField(auto_now_add=True)
+    unread = models.BooleanField(default=True)
 
     def body(self):
         return {
@@ -19,4 +20,5 @@ class Message(models.Model):
             'author' : self.author.username,
             'message' : self.message,
             'time' : self.timestamp.isoformat(),
+            'unread' : self.unread,
         }
