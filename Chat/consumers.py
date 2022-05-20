@@ -4,7 +4,7 @@ import json
 from Chat.models import Message, Chat
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
-from common.functool import getUser
+from common.functool import getActiveUser, getUser
 
 
 def getToken(scope):
@@ -30,8 +30,14 @@ class ChatConsumer(WebsocketConsumer):
     #command func
     def newMessage(self, data):
 
-        user = getUser(id = data['userId'])
+        user = getActiveUser(id = data['userId'])
+        if user is None:
+            print("WS ERROR : Invalid user.")
+            return
         reqUser = getReqUser(self.scope)
+        if reqUser is None:
+            print("WS ERROR : User havent logged in.")
+            return
 
         chat = getChat(user,reqUser)
         if chat is None:
@@ -64,7 +70,14 @@ class ChatConsumer(WebsocketConsumer):
     def fetchMessage(self, data):
         userId = data['userId']
         user = getUser(id=userId)
+        if user is None:
+            print('WS ERROR : User not found.')
+            return
         reqUser = getReqUser(self.scope)
+        if reqUser is None:
+            print('WS ERROR : User havent logged in.')
+            return
+
         chat = getChat(user, reqUser)
         if chat is not None:
             messages = Message.objects.filter(chat=chat)
@@ -98,6 +111,8 @@ class ChatConsumer(WebsocketConsumer):
 
             self.accept()
             # self.send(text_data=json.dumps({'message' : 'connect successfully'}))
+        else :
+            print('WS ERROR : User havent logged in.')
 
     def disconnect(self, test_code):
         # print('disconnect : ',self.scope)
