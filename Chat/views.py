@@ -56,7 +56,7 @@ def getChatList(request):
                             'lastMessage' : messages[0].body(), 
                             'username' : user.username, 
                             'userId' : user.id, 
-                            'unread' : len(Message.objects.filter(chat=c, unread=True).exclude(author=reqUser)),
+                            # 'unread' : len(Message.objects.filter(chat=c, unread=True).exclude(author=reqUser)),
                             }]
     
     results.sort(key=messageTime)

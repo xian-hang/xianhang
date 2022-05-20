@@ -81,10 +81,10 @@ class ChatConsumer(WebsocketConsumer):
         chat = getChat(user, reqUser)
         if chat is not None:
             messages = Message.objects.filter(chat=chat)
-            unread = Message.objects.filter(chat=chat, unread=True).exclude(author=reqUser)
-            for m in unread:
-                m.unread = False
-                m.save()
+            # unread = Message.objects.filter(chat=chat, unread=True).exclude(author=reqUser)
+            # for m in unread:
+            #     m.unread = False
+            #     m.save()
             self.send(text_data='0' + json.dumps({'message' : [m.body() for m in messages]}))
 
     # command type
