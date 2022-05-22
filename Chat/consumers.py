@@ -151,7 +151,8 @@ class ChatConsumer(WebsocketConsumer):
             self.channel_name
         )
         messages = Message.objects.filter(chat__id=chatId)
-        self.send(text_data=json.dumps({'message' : [m.body() for m in messages]}))
+        for m in messages:
+            self.sendMessage({'message' : m.body()})
 
 
     def sendMessage(self, data):
