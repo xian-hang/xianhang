@@ -49,6 +49,7 @@ class ChatConsumer(WebsocketConsumer):
                 {
                     'type' : 'newChat',
                     'chatId' : chat.id,
+                    'userId' : user.id,
                     'message' : 'add new chat'
                 }
             )
@@ -146,13 +147,20 @@ class ChatConsumer(WebsocketConsumer):
     # group command type func
     def newChat(self, data):
         chatId = data['chatId']
+        userId = data['userId']
         async_to_sync(self.channel_layer.group_add)(
             'chat_%s' % chatId,
             self.channel_name
         )
-        messages = Message.objects.filter(chat__id=chatId)
-        for m in messages:
-            self.sendMessage({'message' : m.body()})
+        
+        chat = Chat.objects.get(id=chatId)
+        user = getActiveUser(id=userId)
+        self.send(text_data='2' + json.dumps({'chatId' : chat.id, 
+                                                'message' : [m.body() for m in Message.objects.filter(chat=chat)], 
+                                                'username' : chat.users.exclude(id=user.id).first().username, 
+                                                'userId' : chat.users.exclude(id=user.id).first().id,
+                                                'unread' : len(Message.objects.filter(chat=chat, unread=True).exclude(author=user)),
+                                                } ))
 
 
     def sendMessage(self, data):
