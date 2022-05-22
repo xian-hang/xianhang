@@ -108,7 +108,7 @@ class ChatConsumer(WebsocketConsumer):
                 )
 
             self.accept()
-            self.send(text_daa='0' + json.dumps({'result' : [{'chatId' : c.id, 
+            self.send(text_data='0' + json.dumps({'result' : [{'chatId' : c.id, 
                                                                 'message' : [m.body() for m in Message.objects.filter(chat=c)], 
                                                                 'username' : c.users.exclude(id=reqUser.id).first().username, 
                                                                 'userId' : c.users.exclude(id=reqUser.id).first().id,
