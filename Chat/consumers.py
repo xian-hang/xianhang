@@ -110,6 +110,12 @@ class ChatConsumer(WebsocketConsumer):
                 )
 
             self.accept()
+            self.send(text_daa='0' + json.dumps({'result' : [{'chatId' : c.id, 
+                                                                'message' : [m.body() for m in Message.objects.filter(chat=c)], 
+                                                                'username' : c.users.exclude(id=reqUser.id).first().username, 
+                                                                'userId' : c.users.exclude(id=reqUser.id).first().id,
+                                                                'unread' : len(Message.objects.filter(chat=c, unread=True).exclude(author=reqUser)),
+                                                                } for c in chats ]}))
             # self.send(text_data=json.dumps({'message' : 'connect successfully'}))
         else :
             print('WS ERROR : User havent logged in.')
