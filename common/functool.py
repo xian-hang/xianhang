@@ -174,3 +174,6 @@ def deleteImage(path):
 
 def by_date(item):
     return item.id
+
+def timeToString(time):
+    return time.strftime('%Y-%m-%d+%H:%M:%S')

@@ -2,6 +2,8 @@ from django.db import models
 from XHUser.models import XHUser
 import json
 
+from common.functool import timeToString
+
 # Create your models here.
 class Chat(models.Model):
     users = models.ManyToManyField(XHUser)
@@ -19,6 +21,6 @@ class Message(models.Model):
             'authorId' : self.author.id,
             'author' : self.author.username,
             'message' : self.message,
-            'time' : self.timestamp.isoformat(),
+            'time' : timeToString(self.timestamp),
             'unread' : self.unread,
         }
