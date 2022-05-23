@@ -176,4 +176,4 @@ def by_date(item):
     return item.id
 
 def timeToString(time):
-    return time.strftime('%Y-%m-%d+%H:%M:%S')
+    return time.astimezone(timezone.get_current_timezone()).strftime('%Y-%m-%d+%H:%M:%S')
