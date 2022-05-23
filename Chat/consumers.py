@@ -29,6 +29,9 @@ class ChatConsumer(WebsocketConsumer):
 
     #command func
     def newMessage(self, data):
+        if len(data['message']) == 0:
+            print("WS ERROR : Invalid message.")
+            return
 
         user = getActiveUser(id = data['userId'])
         if user is None:
@@ -149,8 +152,15 @@ class ChatConsumer(WebsocketConsumer):
 
     def receive(self, text_data=None):
         # print('receive : ', self.scope)
+        if text_data is None or len(text_data) == 0:
+            print('WS ERROR: empty text_data.')
+            return
+
         data = json.loads(text_data)
-        self.commandTypes[data['type']](self, data)
+        if 'type' in data:
+            self.commandTypes[data['type']](self, data)
+        else:
+            print('WS ERROR: missing type.')
 
 
     # group command type func
