@@ -58,15 +58,23 @@ class ChatConsumer(WebsocketConsumer):
                 'chat_%s' % chat.id,
                 self.channel_name
             )
+
+            self.send(text_data='2' + json.dumps({'chatId' : chat.id, 
+                                                'message' : [m.body() for m in Message.objects.filter(chat=chat)], 
+                                                'username' : user.username, 
+                                                'userId' : user.id,
+                                                'unread' : len(Message.objects.filter(chat=chat, unread=True, author=user)),
+                                                } ))
         
-        message = Message.objects.create(message=data['message'], author= reqUser,chat=chat)
-        async_to_sync(self.channel_layer.group_send)(
-            'chat_%s' % chat.id,
-            {
-                'type' : 'sendMessage',
-                'message' : message.body(),
-            }
-        )
+        else:
+            message = Message.objects.create(message=data['message'], author= reqUser,chat=chat)
+            async_to_sync(self.channel_layer.group_send)(
+                'chat_%s' % chat.id,
+                {
+                    'type' : 'sendMessage',
+                    'message' : message.body(),
+                }
+            )
 
     def readMessage(self, data):
         userId = data['userId']
