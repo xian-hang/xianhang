@@ -43,6 +43,7 @@ class ChatConsumer(WebsocketConsumer):
         if chat is None:
             chat = Chat.objects.create()
             chat.users.add(user, reqUser)
+            message = Message.objects.create(message=data['message'], author= reqUser,chat=chat)
 
             async_to_sync(self.channel_layer.group_send)(
                 'channel_%s' % user.id,
